@@ -1,7 +1,7 @@
 ﻿# Git Sandbox Terminal
 
-Vite + React + TypeScript로 만든 Git 학습용 UI 데모입니다.
-한쪽에는 커밋 그래프를, 오른쪽에는 Editor와 터미널을 배치해 Git 동작을 시각적으로 확인할 수 있습니다.
+실행 가능한 Git 학습용 미니 IDE입니다.  
+좌측에는 커밋 그래프, 우측에는 코드 에디터 + 터미널을 배치해 `git`의 핵심 흐름을 실습할 수 있습니다.
 
 ---
 
@@ -12,32 +12,40 @@ npm install
 npm run dev
 ```
 
-브라우저에서 기본적으로 `http://localhost:5173` 에 접속합니다.
+브라우저: `http://localhost:5173`
+- 배포 주소: https://joyoo-blog.com/
+- 배포: Netlify 사용 가능 (`npm run build` 통과 기준)
 
 ---
 
-## 현재 지원 기능
+## 핵심 기능
 
-- Git 리포지터리 초기화/커밋/브랜치/체크아웃
-- 병합(FF 및 non-FF merge commit 생성)
-- 상태 조회(`status`)
-- 로그 조회(`log --oneline`)
-- `revert`, `reset --hard`
-- Detached HEAD 이동/복귀
-- Editor 내용은 `git commit` 시점에 스냅샷으로 저장
-- 좌측은 SVG 그래프, 우측은 Editor + Terminal
-
-현재 명령어는 단일 파이프라인으로 동작합니다.
-
-```
-입력(터미널) -> parseCommand -> executeCommand -> 상태 업데이트
-```
+- Git 상태 엔진(모의 Git)
+  - `init / commit -m / branch / switch / switch -c / checkout / merge / revert / reset --hard / status / log --oneline / help`
+- 분기/병합
+  - FF Merge, Non-FF Merge(3-way merge commit 생성), mergeBase 저장
+  - detached HEAD
+- SVG Graph 뷰
+  - 커밋 노드/부모 간선/브랜치 라벨/HEAD 표시
+  - 커밋이 늘어나면 스크롤로 대응
+- 에디터 연동
+  - 커밋은 `editorText` 스냅샷을 저장
+  - branch/commit 이동 시 HEAD 커밋 스냅샷을 에디터에 반영
+  - `reset --hard` 시 에디터 텍스트 롤백
+- 터미널 UX
+  - 다중 명령어(멀티라인) 일괄 입력 지원
+  - 결과를 줄 단위로 순차 실행(딜레이 적용)
+  - 명령 히스토리(↑/↓), 입력 복구
+- 충돌 UI(현재: 충돌 해결 흐름 기반 뼈대)
+  - 결과/원본 비교 기반 `ConflictResolver` 진입점
+- 데모/교육 모듈
+  - 헤더 우측 질문 버튼 기반 튜토리얼 모달
+  - 데모 카탈로그 버튼으로 시나리오별 실행
+    - 기본/브랜치/머지/revert/reset 등의 순차 실행 데모
 
 ---
 
-## 사용 가능한 명령어
-
-`help` 입력 시 출력됩니다.
+## 현재 지원 명령어
 
 - `help`
 - `git init`
@@ -52,118 +60,109 @@ npm run dev
 - `git status`
 - `git log --oneline`
 
-> 공백/따옴표 처리 및 기본 파싱은 `src/git/parse/*`에서 처리합니다.
+---
+
+## 주요 사용 흐름
+
+1. 최초 진입
+   - 환영 메시지 출력, `help` 확인
+2. Git 시작
+   - `git init` → `git commit -m ...` 반복
+3. 브랜치/전환
+   - `git branch`, `git switch`, `git checkout`
+4. 병합 학습
+   - FF 병합: `merge`
+   - Non-FF 병합: Merge commit 생성 및 부모 2개 표시
+5. 롤백/원복
+   - `git revert` 또는 `git reset --hard`
+6. 시각 확인
+   - 그래프에서 HEAD 이동, 브랜치 라벨, 머지 포인트를 함께 점검
 
 ---
 
-## 핵심 동작 규칙
+## 동작 규칙 요약
 
-### 초기화
-
-- `git init` 실행 시:
-  - `meta.initialized = true`
-  - `main` 브랜치 생성 (`main: null`)
-  - `head`는 `symbolic` + `branch: main`, `commitId: null`
-- 이미 초기화된 상태에서 다시 `git init`을 실행하면 재초기화 메시지를 출력합니다.
-
-### commit
-
-- 커밋 ID는 `c1, c2, ...`
-- `parents`는 배열입니다.
-- HEAD가 symbolic이면 해당 브랜치 포인터를 새 커밋으로 이동
-- HEAD가 detached이면 detached head의 `commitId`만 이동
-- `editorText`를 현재 snapshot으로 저장
-
-### branch / switch / checkout
-
-- `git branch <name>`: 기존 브랜치 이름이면 오류
-- `git switch <name>`: 존재 브랜치로 전환
-- `git switch -c <name>`: 브랜치 생성 + 전환
-- `git checkout <branch|commitId>`:
-  - 브랜치명이면 symbolic HEAD 전환
-  - `cN` 형태면 commitId로 detached 전환
-
-### merge
-
-- 입력 브랜치가 존재하지 않으면 오류
-- HEAD가 detached면 병합 불가 오류
-- 머지 판정은 공통 조상(ancestor) 로직으로 처리
-  - 이미 동일 커밋이면 `Already up to date`
-  - 현재 tip이 대상 tip을 선행 조상으로 포함하면 `Fast-forward`
-  - 그 외는 merge commit 생성
-- merge commit는 `Merge branch '<name>'`, `parents: [current, target]`
-- 현재 버전은 non-FF에서도 충돌은 따로 계산하지 않고 commit만 생성
-- 병합 커밋에는 `mergeBase`(optional)도 저장
-
-### status / log
-
-- `status`
-  - symbolic: `On branch <branch> + HEAD -> <branch> (<commitId or no commits yet>)`
-  - detached: `HEAD detached at <commitId or no commits yet>`
-  - 현재 상태를 기준으로 간단한 clean/dirty 문구 표시
-- `log --oneline`
-  - `head`가 가리키는 커밋부터 first-parent 경로로 최대 30개 출력
-  - 커밋이 없으면 `No commits yet`
-
-### revert / reset
-
-- `revert <commitId>`: 새 커밋 생성(`Revert "<message>"`), 대상이 없으면 오류
-- `reset --hard <commitId>`: 헤드 포인터만 이동 + 에디터 내용을 해당 commit snapshot으로 복원
+- `init`
+  - `head = { type: "symbolic", branch: "main", commitId: null }`
+  - `branches.main = null`, `meta.initialized = true`, `nextId` 초기화
+- `commit`
+  - `snapshot = editorText`
+  - `parents` 기반 DAG 기록
+  - symbolic head면 현재 브랜치 tip 이동, detached면 `head.commitId`만 이동
+- `branch`
+  - 현재 HEAD를 가리키는 브랜치 생성(또는 unborn branch: `null`)
+- `switch`
+  - 존재 브랜치로만 이동
+- `checkout`
+  - branch: symbolic 이동
+  - commit: detached 이동
+- `merge`
+  - detached는 미지원
+  - unborn branch tip(null) 예외 규칙 처리
+  - FF 가능 시 fast-forward, 불가 시 merge commit 생성
+  - `mergeBase`는 내부 메타로 저장
+- `revert`
+  - 새 커밋 생성(`Revert "<원본메시지>"`), parents는 현재 HEAD 기준
+- `reset --hard`
+  - HEAD 포인터만 이동, 커밋 삭제 없음
+  - 에디터 텍스트를 대상 커밋 snapshot으로 덮어쓰기
+- `status / log`
+  - symbolic/detached 분기 상태 반영
+  - `log --oneline`는 first-parent 방식(최대 30개)
 
 ---
 
-## Unborn branch (커밋 없는 브랜치) 동작
+## 현재 아키텍처
 
-- 브랜치 tip이 `null`인 경우에도 명령이 깨지지 않습니다.
-- `isAncestor(null, X)`는 `true`, `isAncestor(X, null)`는 `false`로 동작
-- 현재 브랜치 tip이 `null`이고 대상 브랜치가 커밋을 가지고 있으면 `Fast-forward`로 병합 포인터를 이동
-
----
-
-## 구현 구조
-
-- `src/App.tsx`
-  - 전체 상태: `useReducer(reducer, initialState)`
-  - 헤더, Graph, Editor, Terminal 구성
-
-- `src/git/`
-  - `types.ts`: 공통 상태 타입
-  - `parse.ts` + `parse/*`: 터미널 입력 파싱
-  - `execute.ts`: 단일 실행 엔트리(`executeCommand`) + switch 기반 라우팅
-  - `guards.ts`: 공통 오류 가드
-  - `messages.ts`: 공통 출력/에러 메시지
-  - `utils.ts`: DAG 유틸(ancestor/LCA)
-  - `reducer.ts`: 리듀서 조합 엔트리
-  - `reducer/*`: 액션, 초기상태, reduce 적용부
-  - `commands/execute/*`: 명령별 실행 핸들러
-
-- `src/components/graph/*`
-  - 그래프 레이아웃/좌표 계산/노드/엣지 렌더러
-  - 커밋 정렬은 기본적으로 `timestamp` 최신 우선, 예외적으로 id `cN` fallback
-
-- `src/app/*`
-  - `terminalSubmitHandlers.ts`: Enter/멀티라인 입력 처리
-  - `terminalHistoryHandlers.ts`: 위/아래 방향키 히스토리
+- `App.tsx`
+  - 상태(useReducer), 터미널 입력 처리, 데모/튜토리얼 제어
+- `src/git`
+  - `types.ts` 상태 타입
+  - `reducer.ts` 액션/상태 갱신
+  - `parse.ts` 명령어 파서(AST)
+  - `execute.ts` 단일 실행 진입점
+  - `commands/execute/*` 명령 핸들러 분리
+  - `guards.ts`, `messages.ts`로 에러/메시지 공통화
+- `src/components`
+  - `Graph.tsx` + `graph/*` SVG 렌더링 및 레이아웃 유틸
+  - `Editor.tsx` / `MonacoEditor`(실사용 에디터)
+  - `Terminal.tsx`
+  - `AppHeader.tsx`, `AppTutorialModal.tsx`, `AppDemoCatalogModal.tsx`
 
 ---
 
-## 터미널 / UI
+## 프로젝트 구조(요약)
 
-- Enter: 제출
-- Shift+Enter: (현재 입력 유지)
-- Up/Down: 히스토리 이동
-- 여러 줄 명령 입력 시 줄 단위로 순차 실행되어 결과가 모두 기록됩니다.
-
-### 헤더 버튼
-
-- `Log State`: 현재 상태를 콘솔에 출력
-- `Reset`: 초기 상태로 전체 리셋
+```text
+src/
+  App.tsx
+  components/
+    AppHeader.tsx
+    AppTutorialModal.tsx
+    AppDemoCatalogModal.tsx
+    Editor.tsx
+    Terminal.tsx
+    Graph.tsx
+    ConflictResolver.tsx
+    graph/
+      GraphCanvas*.tsx
+  app/
+    terminalSubmitHandlers.ts
+    terminalHistoryHandlers.ts
+  git/
+    execute.ts
+    guards.ts
+    messages.ts
+    parse.ts
+    reducer.ts
+    types.ts
+    commands/execute/*
+```
 
 ---
 
-## 최근 정리 포인트
+## 참고
 
-- 파서/실행 메시지/오류 처리는 가드 + 공통 메시지로 정리
-- 실행 엔트리는 `src/git/execute.ts` 하나로 통합
-- merge에서 LCA 결과를 실제로 커밋 메타(`mergeBase`)에 보관
-- 그래프 정렬은 id 규칙에 강결합되지 않도록 `timestamp` 우선 정렬로 완화
+- 데모 실행 시 브라우저 터미널에 명령이 순차적으로 주입되며, 각 결과를 화면에서 확인할 수 있습니다.
+- 복잡한 시나리오도 동일한 파이프라인으로 동작하기 때문에 `git` 상태 + 에디터 + 그래프가 함께 일관되게 갱신됩니다.
+
