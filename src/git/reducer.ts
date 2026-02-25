@@ -32,7 +32,7 @@ export const initialState: GitState = {
   branches: {},
   head: {
     type: 'symbolic',
-    branch: null,
+    branch: 'main',
     commitId: null,
   },
   editorText: '',

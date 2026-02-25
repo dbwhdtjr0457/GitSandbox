@@ -108,6 +108,13 @@ function App() {
     })
   }
 
+  const handleReset = () => {
+    dispatch({
+      type: GitActionType.Initialize,
+      payload: initialState,
+    })
+  }
+
   return (
     <div className="app-shell">
       <header className="app-header">
@@ -115,8 +122,13 @@ function App() {
         <div className="app-header-sub">
           {state.meta.initialized ? 'Initialized' : 'Not initialized'} /
           {' '}
-          HEAD: {state.head.branch ?? 'detached'}
+          HEAD: {state.head.type === 'symbolic' ? state.head.branch : 'detached'}
           {state.head.commitId ? ` (${state.head.commitId})` : ''}
+        </div>
+        <div className="app-header-actions">
+          <button type="button" className="app-reset-button" onClick={handleReset}>
+            Reset
+          </button>
         </div>
       </header>
 

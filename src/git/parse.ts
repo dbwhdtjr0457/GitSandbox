@@ -5,6 +5,10 @@ type ParsedCommand =
   | { kind: 'switch', name: string }
   | { kind: 'switchCreate', name: string }
   | { kind: 'merge', name: string }
+  | { kind: 'checkout', refType: 'branch'; name: string }
+  | { kind: 'checkout', refType: 'commit'; commitId: string }
+  | { kind: 'status' }
+  | { kind: 'logOneline' }
   | { kind: 'help' }
   | { kind: 'error', message: string }
 
@@ -72,6 +76,8 @@ export function parseCommand(line: string): ParsedCommand {
   // git switch main
   // git switch -c feat/api
   // git merge main
+  // git checkout main
+  // git checkout c1
   // help
 
   if (tokens.length === 1 && tokens[0] === 'help') {
@@ -112,6 +118,22 @@ export function parseCommand(line: string): ParsedCommand {
 
   if (tokens[1] === 'merge' && tokens.length === 3) {
     return { kind: 'merge', name: tokens[2] }
+  }
+
+  if (tokens[1] === 'status' && tokens.length === 2) {
+    return { kind: 'status' }
+  }
+
+  if (tokens[1] === 'log' && tokens.length === 3 && tokens[2] === '--oneline') {
+    return { kind: 'logOneline' }
+  }
+
+  if (tokens[1] === 'checkout' && tokens.length === 3) {
+    const ref = tokens[2]
+    if (/^c\d+$/.test(ref)) {
+      return { kind: 'checkout', refType: 'commit', commitId: ref }
+    }
+    return { kind: 'checkout', refType: 'branch', name: ref }
   }
 
   return { kind: 'error', message: 'Unknown git subcommand. Use help.' }

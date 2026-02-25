@@ -49,6 +49,13 @@ export function Terminal({
   return (
     <section className="terminal-panel">
       <div ref={logRef} className="terminal-history">
+        <div className="terminal-empty">
+          <div className="terminal-empty-line">Welcome to Git Sandbox Terminal</div>
+          <div className="terminal-empty-line">
+            Run <span className="terminal-inline-code">help</span> to list available commands.
+          </div>
+          <div className="terminal-empty-line">$ git</div>
+        </div>
         {history.map((entry) => (
           <div key={entry.id} className="terminal-entry">
             <div className="terminal-command">$ {entry.cmd}</div>
@@ -58,17 +65,19 @@ export function Terminal({
         ))}
       </div>
       <div className="terminal-input-wrap">
-        <label htmlFor="terminal-input" className="terminal-input-label">
-          terminal
-        </label>
-        <textarea
-          id="terminal-input"
-          className="terminal-input"
-          value={input}
-          onChange={(event) => onInputChange(event.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder="type command and press Enter"
-        />
+        <div className="terminal-input-row">
+          <label htmlFor="terminal-input" className="terminal-prompt">
+            $
+          </label>
+          <textarea
+            id="terminal-input"
+            className="terminal-input"
+            value={input}
+            onChange={(event) => onInputChange(event.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="type command and press Enter"
+          />
+        </div>
       </div>
     </section>
   )

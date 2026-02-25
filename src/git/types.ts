@@ -1,18 +1,23 @@
 export type Commit = {
   id: string
   message: string
-  parentId: string | null
+  parents: string[]
   branch: string | null
   lane: number
   snapshot: string
   timestamp: number
 }
 
-export type HeadRef = {
-  type: 'symbolic'
-  branch: string | null
-  commitId: string | null
-}
+export type HeadRef =
+  | {
+      type: 'symbolic'
+      branch: string
+      commitId: string | null
+    }
+  | {
+      type: 'detached'
+      commitId: string | null
+    }
 
 export type TerminalEntry = {
   id: string

@@ -10,6 +10,7 @@ body {
   font-family: Arial, sans-serif;
   display: block;
   background: linear-gradient(180deg, #f6f8ff 0%, #f3f5ff 100%);
+  font-size: 16px;
 }
 
 .app-shell {
@@ -23,7 +24,7 @@ body {
 
 .app-header {
   flex: 0 0 auto;
-  padding: 12px 16px;
+  padding: 14px 20px;
   border-bottom: 1px solid #d9ddff;
   background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(4px);
@@ -34,13 +35,27 @@ body {
   font-weight: 600;
 }
 
+.app-header-actions {
+  display: flex;
+}
+
+.app-reset-button {
+  border: 1px solid #c7d2fe;
+  background: #1d4ed8;
+  color: #fff;
+  border-radius: 8px;
+  padding: 10px 15px;
+  font-weight: 600;
+  font-size: 15px;
+}
+
 .app-header-title {
-  font-size: 18px;
+  font-size: 21px;
   color: #20264d;
 }
 
 .app-header-sub {
-  font-size: 13px;
+  font-size: 15px;
   color: #4f5d7d;
 }
 
@@ -54,21 +69,27 @@ body {
 .panel {
   flex: 1 1 50%;
   min-width: 0;
-  padding: 12px;
+  padding: 14px;
   box-sizing: border-box;
   border: 1px solid #dcdcdc;
 }
 
 .graph-panel {
+  display: flex;
+  justify-content: center;
   overflow-y: auto;
 }
 
 .graph-canvas {
-  width: 100%;
+  width: auto;
+  max-width: 100%;
+  margin: 0 auto;
+  display: block;
   height: 100%;
   min-height: 100%;
   border: 1px solid #e5e5e5;
   background: #fafafa;
+  box-sizing: border-box;
 }
 
 .graph-canvas text {
@@ -82,14 +103,14 @@ body {
 .right-panel {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
 }
 
 .sub-panel {
   flex: 1;
   border: 1px solid #e5e5e5;
   min-height: 0;
-  padding: 8px;
+  padding: 11px;
   background: #fff;
 }
 
@@ -104,18 +125,18 @@ body {
 .editor {
   resize: none;
   font-family: monospace;
-  padding: 8px;
+  padding: 10px;
 }
 
 .editor-wrap {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 11px;
   height: 100%;
 }
 
 .editor-label {
-  font-size: 13px;
+  font-size: 15px;
   color: #333;
 }
 
@@ -125,15 +146,17 @@ body {
   resize: none;
   border: 1px solid #ddd;
   font-family: monospace;
-  padding: 8px;
+  padding: 11px;
   box-sizing: border-box;
   min-height: 0;
+  font-size: 16px;
+  line-height: 1.5;
 }
 
 .terminal-panel {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 11px;
   height: 100%;
 }
 
@@ -144,60 +167,100 @@ body {
   border: 1px solid #ddd;
   background: #111;
   color: #e8ffe8;
-  padding: 8px;
+  padding: 11px;
   box-sizing: border-box;
 }
 
+.terminal-empty {
+  color: #a5d6ff;
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 11px;
+}
+
+.terminal-empty-line {
+  margin-bottom: 5px;
+}
+
+.terminal-inline-code {
+  color: #88c0ff;
+  font-weight: 600;
+}
+
 .terminal-entry + .terminal-entry {
-  margin-top: 8px;
+  margin-top: 11px;
 }
 
 .terminal-command {
   color: #88c0ff;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
+  font-size: 14px;
 }
 
 .terminal-output {
   margin: 0;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
+  font-size: 14px;
+  line-height: 1.55;
 }
 
 .terminal-error {
-  margin: 4px 0 0;
-  padding: 6px 8px;
+  margin: 6px 0 0;
+  padding: 8px 10px;
   border-left: 3px solid #ff5555;
   color: #ffb3b3;
   background: rgba(255, 0, 0, 0.14);
   white-space: pre-wrap;
   overflow-wrap: anywhere;
+  font-size: 14px;
 }
 
 .terminal-input-wrap {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 9px;
 }
 
-.terminal-input-label {
-  font-size: 13px;
-  color: #333;
+.terminal-input-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  background: #111;
+  border: 1px solid #ddd;
+}
+
+.terminal-prompt {
+  color: #88c0ff;
+  padding: 11px 0 0 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  font-family: monospace;
+  font-size: 18px;
 }
 
 .terminal-input {
   width: 100%;
-  min-height: 66px;
+  min-height: 76px;
   resize: none;
-  border: 1px solid #ddd;
-  padding: 8px;
+  border: none;
+  padding: 11px 9px 9px 0;
   box-sizing: border-box;
   font-family: monospace;
+  color: #e8ffe8;
+  background: #111;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.terminal-input:focus {
+  outline: none;
 }
 
 .terminal {
   background: #111;
   color: #e8ffe8;
-  padding: 8px;
+  padding: 9px;
   box-sizing: border-box;
   overflow: auto;
 }

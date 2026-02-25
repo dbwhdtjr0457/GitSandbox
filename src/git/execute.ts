@@ -1,5 +1,6 @@
 import type { Commit, GitState } from './types'
 import type { ParsedCommand as CommandAst } from './parse'
+import { findLCA, isAncestor } from './utils'
 
 export type ExecutionResult = {
   nextState: GitState
@@ -7,29 +8,16 @@ export type ExecutionResult = {
   err?: string
 }
 
-export function isAncestor(
-  ancestor: string | null,
-  descendant: string | null,
-  commits: Record<string, Commit>,
-): boolean {
-  if (ancestor === null || descendant === null) {
-    return ancestor === descendant
+function getSnapshotByCommitId(commitId: string | null, commits: Record<string, Commit>): string {
+  if (!commitId) {
+    return ''
   }
 
-  let current: string | null = descendant
-  while (current !== null) {
-    if (current === ancestor) {
-      return true
-    }
-    const node: Commit | undefined = commits[current]
-    if (!node) {
-      return false
-    }
-
-    current = node.parentId
+  if (!Object.prototype.hasOwnProperty.call(commits, commitId)) {
+    return ''
   }
 
-  return false
+  return commits[commitId]?.snapshot ?? ''
 }
 
 export function executeCommand(state: GitState, cmd: CommandAst): ExecutionResult {
@@ -45,13 +33,17 @@ export function executeCommand(state: GitState, cmd: CommandAst): ExecutionResul
           '  git branch <name>',
           '  git switch <name>',
           '  git switch -c <name>',
+          '  git checkout <branch|commit>',
           '  git merge <name>',
+          '  git status',
+          '  git log --oneline',
         ].join('\n'),
       }
     case 'init': {
       const nextState: GitState = {
         ...state,
         commits: {},
+        editorText: '',
         branches: {
           ...state.branches,
           main: null,
@@ -96,15 +88,13 @@ export function executeCommand(state: GitState, cmd: CommandAst): ExecutionResul
       {
         const commitId = `c${state.meta.nextId}`
         const symbolicLane =
-          state.head.type === 'symbolic' && state.head.branch
-            ? state.meta.lanes[state.head.branch]
-            : undefined
+          state.head.type === 'symbolic' ? state.meta.lanes[state.head.branch] : undefined
         const commitLane = state.head.type === 'symbolic' ? (symbolicLane ?? 0) : 0
 
         const commit: Commit = {
           id: commitId,
           message: cmd.message,
-          parentId: state.head.commitId,
+          parents: state.head.commitId ? [state.head.commitId] : [],
           branch: state.head.type === 'symbolic' ? state.head.branch : null,
           lane: commitLane,
           snapshot: state.editorText,
@@ -119,7 +109,7 @@ export function executeCommand(state: GitState, cmd: CommandAst): ExecutionResul
         let nextHead = state.head
         let nextBranches = state.branches
 
-        if (state.head.type === 'symbolic' && state.head.branch) {
+        if (state.head.type === 'symbolic') {
           nextBranches = {
             ...state.branches,
             [state.head.branch]: commitId,
@@ -130,8 +120,7 @@ export function executeCommand(state: GitState, cmd: CommandAst): ExecutionResul
           }
         } else {
           nextHead = {
-            ...state.head,
-            branch: null,
+            type: 'detached',
             commitId,
           }
         }
@@ -205,6 +194,7 @@ export function executeCommand(state: GitState, cmd: CommandAst): ExecutionResul
             branch: cmd.name,
             commitId: state.branches[cmd.name],
           },
+          editorText: getSnapshotByCommitId(state.branches[cmd.name], state.commits),
         },
         out: `Switched to branch '${cmd.name}'`,
       }
@@ -234,6 +224,7 @@ export function executeCommand(state: GitState, cmd: CommandAst): ExecutionResul
             branch: cmd.name,
             commitId: state.head.commitId,
           },
+          editorText: getSnapshotByCommitId(state.head.commitId, state.commits),
           meta: {
             ...state.meta,
             lanes: {
@@ -249,6 +240,58 @@ export function executeCommand(state: GitState, cmd: CommandAst): ExecutionResul
           out: `Created and switched to new branch '${cmd.name}'`,
         }
       }
+    case 'checkout':
+      if (!state.meta.initialized) {
+        return {
+          nextState: state,
+          out: '',
+          err: 'fatal: not a git repository (or any of the parent directories): .git',
+        }
+      }
+
+      if (cmd.refType === 'branch') {
+        if (!Object.prototype.hasOwnProperty.call(state.branches, cmd.name)) {
+          return {
+            nextState: state,
+            out: '',
+            err: `error: pathspec '${cmd.name}' did not match any branch`,
+          }
+        }
+
+        const commitId = state.branches[cmd.name]
+        return {
+          nextState: {
+            ...state,
+            head: {
+              type: 'symbolic',
+              branch: cmd.name,
+              commitId,
+            },
+            editorText: getSnapshotByCommitId(commitId, state.commits),
+          },
+          out: `Switched to branch '${cmd.name}'`,
+        }
+      }
+
+      if (!Object.prototype.hasOwnProperty.call(state.commits, cmd.commitId)) {
+        return {
+          nextState: state,
+          out: '',
+          err: `fatal: bad revision '${cmd.commitId}'`,
+        }
+      }
+
+      return {
+        nextState: {
+          ...state,
+          head: {
+            type: 'detached',
+            commitId: cmd.commitId,
+          },
+          editorText: getSnapshotByCommitId(cmd.commitId, state.commits),
+        },
+        out: `HEAD is now at ${cmd.commitId}`,
+      }
     case 'merge': {
       if (!state.meta.initialized) {
         return {
@@ -258,7 +301,7 @@ export function executeCommand(state: GitState, cmd: CommandAst): ExecutionResul
         }
       }
 
-      if (state.head.type !== 'symbolic' || !state.head.branch) {
+      if (state.head.type !== 'symbolic') {
         return {
           nextState: state,
           out: '',
@@ -266,7 +309,6 @@ export function executeCommand(state: GitState, cmd: CommandAst): ExecutionResul
         }
       }
 
-      const targetCommitId = state.branches[cmd.name]
       if (!Object.prototype.hasOwnProperty.call(state.branches, cmd.name)) {
         return {
           nextState: state,
@@ -274,6 +316,7 @@ export function executeCommand(state: GitState, cmd: CommandAst): ExecutionResul
           err: `fatal: invalid refspec '${cmd.name}'`,
         }
       }
+      const targetCommitId = state.branches[cmd.name]
 
       const currentCommitId = state.head.commitId
       if (currentCommitId === targetCommitId) {
@@ -284,35 +327,124 @@ export function executeCommand(state: GitState, cmd: CommandAst): ExecutionResul
       }
 
       if (isAncestor(currentCommitId, targetCommitId, state.commits)) {
-        const branchName = state.head.branch
-        if (!branchName) {
-          return {
-            nextState: state,
-            out: '',
-            err: 'fatal: cannot merge while HEAD is detached (MVP not supported)',
-          }
-        }
-
         return {
           nextState: {
             ...state,
             branches: {
               ...state.branches,
-              [branchName]: targetCommitId,
+              [state.head.branch]: targetCommitId,
             },
             head: {
               ...state.head,
               commitId: targetCommitId,
             },
+            editorText: getSnapshotByCommitId(targetCommitId, state.commits),
           },
           out: 'Fast-forward',
         }
       }
 
+      const mergeBase = findLCA(state.commits, currentCommitId, targetCommitId)
+      void mergeBase
+      const mergeCommitId = `c${state.meta.nextId}`
+      const mergeCommit: Commit = {
+        id: mergeCommitId,
+        message: `Merge branch '${cmd.name}'`,
+        parents: [currentCommitId, targetCommitId].filter((id): id is string => id !== null),
+        branch: state.head.type === 'symbolic' ? state.head.branch : null,
+        lane: state.head.type === 'symbolic' ? state.meta.lanes[state.head.branch] ?? 0 : 0,
+        snapshot: state.editorText,
+        timestamp: Date.now(),
+      }
+
+      const nextMergeState: GitState = {
+        ...state,
+        commits: {
+          ...state.commits,
+          [mergeCommitId]: mergeCommit,
+        },
+        branches: {
+          ...state.branches,
+          [state.head.branch]: mergeCommitId,
+        },
+        head: {
+          ...state.head,
+          commitId: mergeCommitId,
+        },
+        meta: {
+          ...state.meta,
+          nextId: state.meta.nextId + 1,
+        },
+      }
+
+      return {
+        nextState: nextMergeState,
+        out: 'Merge made by the \'ort\' strategy.',
+      }
+    }
+    case 'status': {
+      if (!state.meta.initialized) {
+        return {
+          nextState: state,
+          out: '',
+          err: 'fatal: not a git repository (or any of the parent directories): .git',
+        }
+      }
+
+      if (state.head.type === 'symbolic') {
+        const commitText = state.head.commitId ?? 'no commits yet'
+        return {
+          nextState: state,
+          out: `On branch ${state.head.branch} + HEAD -> ${state.head.branch} (${commitText})\n` +
+            'nothing to commit (working tree changes not simulated yet)',
+        }
+      }
+
+      const detachedAt = state.head.commitId ?? 'no commits yet'
       return {
         nextState: state,
-        out: '',
-        err: 'Non-FF merge not supported in MVP',
+        out: `HEAD detached at ${detachedAt}\n` + 'nothing to commit (working tree changes not simulated yet)',
+      }
+    }
+    case 'logOneline': {
+      if (!state.meta.initialized) {
+        return {
+          nextState: state,
+          out: '',
+          err: 'fatal: not a git repository (or any of the parent directories): .git',
+        }
+      }
+
+      const headCommitId = state.head.commitId
+      if (!headCommitId) {
+        return {
+          nextState: state,
+          out: 'No commits yet',
+        }
+      }
+
+      const lines: string[] = []
+      let currentId: string | null = headCommitId
+      for (let i = 0; i < 30 && currentId !== null; i += 1) {
+        const commit = state.commits[currentId]
+        if (!commit) {
+          break
+        }
+
+        lines.push(`${commit.id} ${commit.message}`)
+        currentId = commit.parents[0] ?? null
+      }
+
+      if (lines.length === 0) {
+        return {
+          nextState: state,
+          out: 'No commits yet',
+        }
+      }
+
+      return {
+        nextState: state,
+        out: lines.join('\n'),
       }
     }
     case 'error':
