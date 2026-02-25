@@ -59,15 +59,8 @@ export function buildGraphData(
     const emptyLayout = buildEmptyGraphLayout(lanes, branchEntries, laneIndexByValue, reachableCommits)
 
     return {
-      nodes,
       ...emptyLayout,
-      positions: emptyLayout.positions,
-      edges: emptyLayout.edges,
-      isEmpty: emptyLayout.isEmpty,
-      maxY: emptyLayout.maxY,
-      width: emptyLayout.width,
-      latestCommitId: emptyLayout.latestCommitId,
-      reachableCommits: emptyLayout.reachableCommits,
+      nodes,
       laneIndexByValue,
       branchesByLane,
       branchEntries,
