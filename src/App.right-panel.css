@@ -1,0 +1,17 @@
+.panel-content {
+  padding-right: 12px;
+}
+
+.right-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sub-panel {
+  flex: 1;
+  border: 1px solid #e5e5e5;
+  min-height: 0;
+  padding: 11px;
+  background: #fff;
+}

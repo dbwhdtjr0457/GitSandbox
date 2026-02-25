@@ -1,0 +1,111 @@
+.terminal-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  height: 100%;
+}
+
+.terminal-history {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  background: #111;
+  color: #e8ffe8;
+  padding: 11px;
+  box-sizing: border-box;
+}
+
+.terminal-empty {
+  color: #a5d6ff;
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 11px;
+}
+
+.terminal-empty-line {
+  margin-bottom: 5px;
+}
+
+.terminal-inline-code {
+  color: #88c0ff;
+  font-weight: 600;
+}
+
+.terminal-entry + .terminal-entry {
+  margin-top: 11px;
+}
+
+.terminal-command {
+  color: #88c0ff;
+  margin-bottom: 6px;
+  font-size: 14px;
+}
+
+.terminal-output {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.terminal-error {
+  margin: 6px 0 0;
+  padding: 8px 10px;
+  border-left: 3px solid #ff5555;
+  color: #ffb3b3;
+  background: rgba(255, 0, 0, 0.14);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 14px;
+}
+
+.terminal-input-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.terminal-input-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  background: #111;
+  border: 1px solid #ddd;
+}
+
+.terminal-prompt {
+  color: #88c0ff;
+  padding: 11px 0 0 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  font-family: monospace;
+  font-size: 18px;
+}
+
+.terminal-input {
+  width: 100%;
+  min-height: 76px;
+  resize: none;
+  border: none;
+  padding: 11px 9px 9px 0;
+  box-sizing: border-box;
+  font-family: monospace;
+  color: #e8ffe8;
+  background: #111;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.terminal-input:focus {
+  outline: none;
+}
+
+.terminal {
+  background: #111;
+  color: #e8ffe8;
+  padding: 9px;
+  box-sizing: border-box;
+  overflow: auto;
+}

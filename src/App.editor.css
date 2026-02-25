@@ -1,0 +1,38 @@
+.editor,
+.terminal {
+  width: 100%;
+  height: calc(100% - 28px);
+  margin: 0;
+  border: 1px solid #ddd;
+}
+
+.editor {
+  resize: none;
+  font-family: monospace;
+  padding: 10px;
+}
+
+.editor-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  height: 100%;
+}
+
+.editor-label {
+  font-size: 15px;
+  color: #333;
+}
+
+.editor-textarea {
+  flex: 1;
+  width: 100%;
+  resize: none;
+  border: 1px solid #ddd;
+  font-family: monospace;
+  padding: 11px;
+  box-sizing: border-box;
+  min-height: 0;
+  font-size: 16px;
+  line-height: 1.5;
+}
