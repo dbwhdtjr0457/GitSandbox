@@ -23,6 +23,7 @@ export const messages = {
     reverted: (id: string) => `Reverted ${id}.`,
     mergeFastForward: () => 'Fast-forward',
     mergeAlreadyUpToDate: () => 'Already up to date',
+    mergeConflictDetected: () => 'Auto-merging... CONFLICT (content)',
     mergeMadeByOrt: () => `Merge made by the 'ort' strategy.`,
     statusOnBranch: (branch: string, commitId: string) =>
       `On branch ${branch} + HEAD -> ${branch} (${commitId})`,

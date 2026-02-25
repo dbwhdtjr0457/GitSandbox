@@ -2,4 +2,5 @@
 @import './App.graph.css';
 @import './App.right-panel.css';
 @import './App.editor.css';
+@import './App.conflict-resolver.css';
 @import './App.terminal.css';

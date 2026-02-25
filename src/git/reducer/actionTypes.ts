@@ -12,6 +12,8 @@ export const GitActionType = {
   SetBranch: 'SET_BRANCH',
   AddBranch: 'ADD_BRANCH',
   MarkInitialized: 'MARK_INITIALIZED',
+  SetMergeConflict: 'SET_MERGE_CONFLICT',
+  SetCommitSnapshot: 'SET_COMMIT_SNAPSHOT',
 } as const
 
 export type GitAction =
@@ -26,3 +28,8 @@ export type GitAction =
   | { type: typeof GitActionType.SetBranch; payload: { branch: string; commitId: string | null } }
   | { type: typeof GitActionType.AddBranch; payload: { branch: string; commitId: string | null } }
   | { type: typeof GitActionType.MarkInitialized }
+  | { type: typeof GitActionType.SetMergeConflict; payload: GitState['meta']['mergeConflict'] | null }
+  | {
+      type: typeof GitActionType.SetCommitSnapshot
+      payload: { commitId: string; snapshot: string }
+    }

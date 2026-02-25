@@ -1,0 +1,79 @@
+.conflict-resolver {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  height: 100%;
+}
+
+.conflict-toolbar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.conflict-btn {
+  padding: 6px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 5px;
+  background: #f8fafc;
+  color: #0f172a;
+  font-size: 13px;
+}
+
+.conflict-btn-active {
+  background: #e0f2fe;
+  border-color: #38bdf8;
+}
+
+.conflict-btn:hover {
+  background: #e2e8f0;
+}
+
+.conflict-btn-ours {
+  background: #dcfce7;
+}
+
+.conflict-btn-theirs {
+  background: #fee2e2;
+}
+
+.conflict-btn-keep {
+  background: #dbeafe;
+}
+
+.conflict-panels {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  min-height: 0;
+  flex: 1;
+  min-height: 0;
+}
+
+.conflict-pane {
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.conflict-pane-header {
+  font-size: 12px;
+  color: #334155;
+  padding: 6px 8px;
+  border-bottom: 1px solid #e2e8f0;
+  background: #f8fafc;
+}
+
+.conflict-pane .editor-cm {
+  flex: 1;
+}
+
+.conflict-diff-wrap {
+  min-height: 180px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  overflow: hidden;
+}

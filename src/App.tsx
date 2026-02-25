@@ -2,6 +2,7 @@
 import './App.css'
 import { AppHeader } from './components/AppHeader'
 import { Editor } from './components/Editor'
+import { ConflictResolver } from './components/ConflictResolver'
 import { Graph } from './components/Graph'
 import { Terminal } from './components/Terminal'
 import { initialState, GitActionType, reducer } from './git/reducer'
@@ -9,7 +10,7 @@ import { createHistoryDownHandler, createHistoryUpHandler } from './app/terminal
 import { createLogStateHandler, createResetHandler, createSubmitHandler } from './app/terminalSubmitHandlers'
 import AppTutorialModal from './components/AppTutorialModal'
 
-function App() {
+export function App() {
   const [state, dispatch] = useReducer(reducer, initialState)
   const [isTutorialOpen, setIsTutorialOpen] = useState(false)
 
@@ -18,6 +19,52 @@ function App() {
   const handleTerminalSubmit = createSubmitHandler(state, dispatch)
   const handleReset = createResetHandler(dispatch, initialState)
   const handleLogState = createLogStateHandler(state)
+  const mergeConflict = state.meta.mergeConflict
+
+  const handleAcceptOurs = () => {
+    if (!mergeConflict) {
+      return
+    }
+
+    dispatch({ type: GitActionType.EditorSetText, payload: mergeConflict.oursText })
+    dispatch({
+      type: GitActionType.SetCommitSnapshot,
+      payload: { commitId: mergeConflict.pendingMergeCommitId, snapshot: mergeConflict.oursText },
+    })
+    dispatch({ type: GitActionType.SetMergeConflict, payload: null })
+  }
+
+  const handleAcceptTheirs = () => {
+    if (!mergeConflict) {
+      return
+    }
+
+    dispatch({ type: GitActionType.EditorSetText, payload: mergeConflict.theirsText })
+    dispatch({
+      type: GitActionType.SetCommitSnapshot,
+      payload: { commitId: mergeConflict.pendingMergeCommitId, snapshot: mergeConflict.theirsText },
+    })
+    dispatch({ type: GitActionType.SetMergeConflict, payload: null })
+  }
+
+  const handleKeepResult = () => {
+    if (!mergeConflict) {
+      return
+    }
+
+    dispatch({
+      type: GitActionType.SetCommitSnapshot,
+      payload: {
+        commitId: mergeConflict.pendingMergeCommitId,
+        snapshot: state.editorText,
+      },
+    })
+    dispatch({ type: GitActionType.SetMergeConflict, payload: null })
+  }
+
+  const handleResultChange = (value: string) => {
+    dispatch({ type: GitActionType.EditorSetText, payload: value })
+  }
 
   return (
     <div className="app-shell">
@@ -42,12 +89,24 @@ function App() {
 
         <section className="panel right-panel">
           <div className="sub-panel editor-panel">
-            <Editor
-              value={state.editorText}
-              onChange={(value) =>
-                dispatch({ type: GitActionType.EditorSetText, payload: value })
-              }
-            />
+            {mergeConflict?.inProgress ? (
+              <ConflictResolver
+                oursText={mergeConflict.oursText}
+                theirsText={mergeConflict.theirsText}
+                resultText={state.editorText}
+                oursBranch={`HEAD (${mergeConflict.oursBranch})`}
+                theirsBranch={mergeConflict.theirsBranch}
+                onResultChange={handleResultChange}
+                onAcceptOurs={handleAcceptOurs}
+                onAcceptTheirs={handleAcceptTheirs}
+                onKeepResult={handleKeepResult}
+              />
+            ) : (
+              <Editor
+                value={state.editorText}
+                onChange={(value) => dispatch({ type: GitActionType.EditorSetText, payload: value })}
+              />
+            )}
           </div>
           <div className="sub-panel">
             <Terminal
@@ -69,4 +128,4 @@ function App() {
   )
 }
 
-export default App
+export { App as default }

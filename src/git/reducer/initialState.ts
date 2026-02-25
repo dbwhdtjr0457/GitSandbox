@@ -20,5 +20,6 @@ export const initialState: GitState = {
     nextId: 1,
     lanes: {},
     laneCount: 0,
+    mergeConflict: null,
   },
 }

@@ -30,6 +30,31 @@ export function reducer(state: GitState, action: GitAction): GitState {
       }
     case GitActionType.MarkInitialized:
       return { ...state, meta: { ...state.meta, initialized: true } }
+    case GitActionType.SetMergeConflict:
+      return {
+        ...state,
+        meta: {
+          ...state.meta,
+          mergeConflict: action.payload,
+        },
+      }
+    case GitActionType.SetCommitSnapshot: {
+      const currentCommit = state.commits[action.payload.commitId]
+      if (!currentCommit) {
+        return state
+      }
+
+      return {
+        ...state,
+        commits: {
+          ...state.commits,
+          [action.payload.commitId]: {
+            ...currentCommit,
+            snapshot: action.payload.snapshot,
+          },
+        },
+      }
+    }
     default:
       return state
   }

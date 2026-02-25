@@ -1,7 +1,7 @@
 import { findLCA, isAncestor } from '../../utils'
 import type { Commit, GitState } from '../../types'
 import type { ExecutionResult } from './executeUtils'
-import { createCommitId, getLaneByName } from './executeUtils'
+import { createCommitId, getLaneByName, getSnapshotByCommitId } from './executeUtils'
 import { messages } from '../../messages'
 import { requireInitialized, requireSymbolicHead } from '../../guards'
 
@@ -35,10 +35,19 @@ export function executeMerge(state: GitState, branchName: string): ExecutionResu
 
   const targetCommitId = state.branches[branchName]
   const currentCommitId = symbolicHead.commitId
+  const oursText = getSnapshotByCommitId(currentCommitId, state.commits)
+  const theirsText = getSnapshotByCommitId(targetCommitId, state.commits)
+  const hasConflict = oursText !== theirsText
 
   if (currentCommitId === targetCommitId) {
     return {
-      nextState: state,
+      nextState: {
+        ...state,
+        meta: {
+          ...state.meta,
+          mergeConflict: null,
+        },
+      },
       out: messages.output.mergeAlreadyUpToDate(),
     }
   }
@@ -56,6 +65,10 @@ export function executeMerge(state: GitState, branchName: string): ExecutionResu
         head: {
           ...symbolicHead,
           commitId: targetCommitId,
+        },
+        meta: {
+          ...state.meta,
+          mergeConflict: null,
         },
         editorText: targetCommitId ? state.commits[targetCommitId]?.snapshot ?? '' : state.editorText,
       },
@@ -95,8 +108,23 @@ export function executeMerge(state: GitState, branchName: string): ExecutionResu
       meta: {
         ...state.meta,
         nextId: state.meta.nextId + 1,
+        mergeConflict: hasConflict
+          ? {
+              inProgress: true,
+              pendingMergeCommitId: mergeCommitId,
+              oursBranch: symbolicHead.branch,
+              theirsBranch: branchName,
+              oursCommitId: currentCommitId,
+              theirsCommitId: targetCommitId,
+              oursText,
+              theirsText,
+              branchMergeMessage: `Merge branch '${branchName}'`,
+            }
+          : null,
       },
     },
-    out: messages.output.mergeMadeByOrt(),
+    out: hasConflict
+      ? messages.output.mergeConflictDetected()
+      : messages.output.mergeMadeByOrt(),
   }
 }

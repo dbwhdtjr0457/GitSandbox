@@ -44,5 +44,18 @@ export type GitState = {
     nextId: number
     lanes: Record<string, number>
     laneCount: number
+    mergeConflict?: MergeConflictState | null
   }
+}
+
+export type MergeConflictState = {
+  inProgress: boolean
+  pendingMergeCommitId: string
+  oursBranch: string
+  theirsBranch: string
+  oursCommitId: string | null
+  theirsCommitId: string | null
+  oursText: string
+  theirsText: string
+  branchMergeMessage: string
 }
