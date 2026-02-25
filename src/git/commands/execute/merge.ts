@@ -16,6 +16,15 @@ export function executeMerge(state: GitState, branchName: string): ExecutionResu
     return symbolicError
   }
 
+  if (state.head.type !== 'symbolic') {
+    return {
+      nextState: state,
+      out: '',
+      err: messages.error.detachedHeadNotSupported(),
+    }
+  }
+  const symbolicHead = state.head
+
   if (!Object.prototype.hasOwnProperty.call(state.branches, branchName)) {
     return {
       nextState: state,
@@ -25,7 +34,7 @@ export function executeMerge(state: GitState, branchName: string): ExecutionResu
   }
 
   const targetCommitId = state.branches[branchName]
-  const currentCommitId = state.head.commitId
+  const currentCommitId = symbolicHead.commitId
 
   if (currentCommitId === targetCommitId) {
     return {
@@ -35,15 +44,17 @@ export function executeMerge(state: GitState, branchName: string): ExecutionResu
   }
 
   if (isAncestor(currentCommitId, targetCommitId, state.commits)) {
+    const currentBranch = symbolicHead.branch
+
     return {
       nextState: {
         ...state,
         branches: {
           ...state.branches,
-          [state.head.branch]: targetCommitId,
+          [currentBranch]: targetCommitId,
         },
         head: {
-          ...state.head,
+          ...symbolicHead,
           commitId: targetCommitId,
         },
         editorText: targetCommitId ? state.commits[targetCommitId]?.snapshot ?? '' : state.editorText,
@@ -59,8 +70,8 @@ export function executeMerge(state: GitState, branchName: string): ExecutionResu
     id: mergeCommitId,
     message: `Merge branch '${branchName}'`,
     parents: [currentCommitId, targetCommitId].filter((id): id is string => id !== null),
-    branch: state.head.branch,
-    lane: getLaneByName(state, state.head.branch),
+    branch: symbolicHead.branch,
+    lane: getLaneByName(state, symbolicHead.branch),
     snapshot: state.editorText,
     timestamp: Date.now(),
     mergeBase: baseId,
@@ -75,10 +86,10 @@ export function executeMerge(state: GitState, branchName: string): ExecutionResu
       },
       branches: {
         ...state.branches,
-        [state.head.branch]: mergeCommitId,
+        [symbolicHead.branch]: mergeCommitId,
       },
       head: {
-        ...state.head,
+        ...symbolicHead,
         commitId: mergeCommitId,
       },
       meta: {

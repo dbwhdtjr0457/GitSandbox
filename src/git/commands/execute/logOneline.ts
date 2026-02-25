@@ -1,4 +1,4 @@
-import type { GitState } from '../../types'
+import type { Commit, GitState } from '../../types'
 import type { ExecutionResult } from './executeUtils'
 import { logSummaryLine, messages } from '../../messages'
 import { requireInitialized } from '../../guards'
@@ -20,7 +20,7 @@ export function executeLogOneline(state: GitState): ExecutionResult {
   const lines: string[] = []
   let currentId: string | null = headCommitId
   for (let i = 0; i < 30 && currentId !== null; i += 1) {
-    const commit = state.commits[currentId]
+    const commit: Commit | undefined = state.commits[currentId]
     if (!commit) {
       break
     }
