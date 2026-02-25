@@ -95,6 +95,43 @@ body {
   font-family: Arial, sans-serif;
 }
 
+.graph-edge {
+  stroke-dashoffset: 0;
+}
+
+.graph-edge-animate {
+  animation: graph-draw-edge 500ms ease-out both;
+  stroke-dashoffset: -100;
+}
+
+.graph-node {
+  animation: graph-pop-node 320ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+
+@keyframes graph-draw-edge {
+  from {
+    stroke-dashoffset: -100;
+  }
+
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes graph-pop-node {
+  from {
+    opacity: 0;
+    transform: scale(0.4) translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
 .panel-content {
   padding-right: 12px;
 }
