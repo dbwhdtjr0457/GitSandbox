@@ -75,6 +75,12 @@ export function Graph({ commits, branches, head, lanes }: GraphProps) {
   laneValues.forEach((lane, index) => {
     laneIndexByValue.set(lane, index)
   })
+  const branchesByLane = laneValues.map((laneValue) => ({
+    laneValue,
+    names: Object.entries(lanes)
+      .filter(([, lane]) => (lane ?? 0) === laneValue)
+      .map(([name]) => name),
+  }))
 
   if (nodes.length === 0) {
     const branchEntries = Object.entries(branches)
@@ -83,19 +89,40 @@ export function Graph({ commits, branches, head, lanes }: GraphProps) {
       ? Math.max(...branchEntries.map(([name]) => laneIndexByValue.get(lanes[name] ?? 0) ?? 0))
       : 0
     const width = maxLaneIndex * laneGap + sidePadding * 2 + 120
-    const graphHeight = 'max(100%, 180px)'
     return (
       <svg
         viewBox={`0 0 ${width} 180`}
         className="graph-canvas"
         preserveAspectRatio="xMidYMid meet"
-        style={{ height: graphHeight, width: '100%' }}
+        style={{ height: `max(100%, 180px)`, width: '100%', minWidth: `${width}px` }}
       >
+        <rect x="0" y="0" width={width} height="28" fill="#f8fafc" />
+        {branchesByLane.map(({ laneValue, names }) => {
+          const index = laneIndexByValue.get(laneValue) ?? 0
+          const x = baseX + index * laneGap
+          if (names.length === 0) {
+            return null
+          }
+          return (
+            <g key={`lane-label-empty-${laneValue}`}>
+              <line x1={x} y1="28" x2={x} y2="180" stroke="#cbd5e1" strokeWidth="1.8" />
+              <text
+                x={x + 12}
+                y="170"
+                fill="#334155"
+                fontSize="12"
+                textAnchor="start"
+              >
+                {names.join(', ')}
+              </text>
+            </g>
+          )
+        })}
         <text x="20" y="28" fill="#777" fontSize="14">
           No commits yet
         </text>
         {!hasBranches ? (
-          <text x="20" y="56" fill="#777" fontSize="14">
+          <text x="20" y="76" fill="#777" fontSize="14">
             <tspan x="20" y="54">
               Initialize repo and commit
             </tspan>
@@ -103,30 +130,7 @@ export function Graph({ commits, branches, head, lanes }: GraphProps) {
               to start graph
             </tspan>
           </text>
-        ) : (
-          branchEntries.map(([name]) => {
-            const lane = laneIndexByValue.get(lanes[name] ?? 0) ?? 0
-            const x = baseX + lane * laneGap
-            const isHead = head.type === 'symbolic' && head.branch === name
-            return (
-              <g key={`branch-empty-${name}`}>
-                <line x1={x} y1="50" x2={x} y2="150" stroke="#94a3b8" strokeWidth="2.4" />
-                <circle cx={x} cy="95" r={nodeR} fill="#fff" stroke="#475569" strokeWidth="2.4" />
-                <text x={x + 20} y="98" fill="#1f2937" fontSize="14">
-                  {name}
-                </text>
-                {isHead ? (
-                  <g>
-                    <rect x={x - 34} y="76" width="44" height="20" rx="8" fill="#16a34a" />
-                    <text x={x - 12} y="92" fill="#fff" textAnchor="middle" fontSize="12">
-                      HEAD
-                    </text>
-                  </g>
-                ) : null}
-              </g>
-            )
-          })
-        )}
+        ) : null}
       </svg>
     )
   }
@@ -145,21 +149,42 @@ export function Graph({ commits, branches, head, lanes }: GraphProps) {
   const maxY = nodes.length * yGap + 60
   const maxLane = laneValues.length > 0 ? laneValues.length - 1 : 0
   const width = maxLane * laneGap + sidePadding * 2 + 170
-
   const branchEntries = Object.entries(branches)
 
   return (
-    <svg
-      viewBox={`0 0 ${width} ${maxY}`}
-      className="graph-canvas"
-      preserveAspectRatio="xMidYMid meet"
-      style={{ height: `max(100%, ${maxY}px)`, width: '100%' }}
-    >
+      <svg
+        viewBox={`0 0 ${width} ${maxY}`}
+        className="graph-canvas"
+        preserveAspectRatio="xMinYMin meet"
+        style={{ height: `max(100%, ${maxY}px)`, width: '100%', minWidth: `${width}px` }}
+      >
+      <rect x="0" y="0" width={width} height="28" fill="#f8fafc" />
+        {branchesByLane.map(({ laneValue, names }) => {
+          const index = laneIndexByValue.get(laneValue) ?? 0
+          const x = baseX + index * laneGap
+          if (names.length === 0) {
+            return null
+          }
+        return (
+          <g key={`lane-label-${laneValue}`}>
+            <line x1={x} y1="28" x2={x} y2={maxY} stroke="#cbd5e1" strokeWidth="1.8" />
+            <text
+              x={x + 12}
+              y={maxY - 8}
+              fill="#334155"
+              fontSize="12"
+              textAnchor="start"
+            >
+              {names.join(', ')}
+            </text>
+          </g>
+        )
+      })}
       {nodes.map((commit) => {
-        const point = positions.get(commit.id)
-        if (!point) {
-          return null
-        }
+    const point = positions.get(commit.id)
+    if (!point) {
+      return null
+    }
 
         const isReachable = reachableCommits.has(commit.id)
 
@@ -238,7 +263,7 @@ export function Graph({ commits, branches, head, lanes }: GraphProps) {
                 />
                 <text
                   x={point.x}
-                  y={point.y + 30}
+              y={point.y + 30}
                   fill="#f9fafb"
                   textAnchor="middle"
                   fontSize="10"
