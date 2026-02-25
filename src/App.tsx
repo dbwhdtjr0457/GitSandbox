@@ -1,4 +1,4 @@
-import { useReducer } from 'react'
+﻿import { useReducer, useState } from 'react'
 import './App.css'
 import { AppHeader } from './components/AppHeader'
 import { Editor } from './components/Editor'
@@ -7,9 +7,11 @@ import { Terminal } from './components/Terminal'
 import { initialState, GitActionType, reducer } from './git/reducer'
 import { createHistoryDownHandler, createHistoryUpHandler } from './app/terminalHistoryHandlers'
 import { createLogStateHandler, createResetHandler, createSubmitHandler } from './app/terminalSubmitHandlers'
+import AppTutorialModal from './components/AppTutorialModal'
 
 function App() {
   const [state, dispatch] = useReducer(reducer, initialState)
+  const [isTutorialOpen, setIsTutorialOpen] = useState(false)
 
   const handleTerminalHistoryUp = createHistoryUpHandler(state, dispatch)
   const handleTerminalHistoryDown = createHistoryDownHandler(state, dispatch)
@@ -24,7 +26,9 @@ function App() {
         head={state.head}
         onLogState={handleLogState}
         onReset={handleReset}
+        onOpenTutorial={() => setIsTutorialOpen(true)}
       />
+      <AppTutorialModal open={isTutorialOpen} onClose={() => setIsTutorialOpen(false)} />
 
       <div className="layout">
         <section className="panel graph-panel">
