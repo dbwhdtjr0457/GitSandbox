@@ -15,26 +15,155 @@
 
 .graph-edge {
   stroke-dashoffset: 0;
+  transition:
+    stroke 220ms ease,
+    stroke-width 220ms ease,
+    opacity 220ms ease;
 }
 
 .graph-edge-animate {
-  animation: graph-draw-edge 500ms ease-out both;
+  animation: graph-draw-edge 520ms ease-out both;
+  stroke-dashoffset: -100;
+}
+
+.graph-edge-enter {
+  animation: graph-enter-edge 360ms ease-out both;
   stroke-dashoffset: -100;
 }
 
 .graph-node {
-  animation: graph-pop-node 320ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation: graph-pop-node 360ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
   transform-origin: center;
   transform-box: fill-box;
+}
+
+.graph-node-wrap {
+  animation: graph-pop-node 360ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+
+.graph-node-circle {
+  animation: graph-pop-sub 260ms ease-out both;
+}
+
+.graph-node-id {
+  animation: graph-fade-up 220ms ease-out both;
+}
+
+.graph-node-message {
+  animation: graph-fade-up 240ms ease-out both;
+}
+
+.graph-node-badge {
+  animation: graph-fade-in 220ms ease-out both;
+}
+
+.graph-node-badge-text {
+  animation: graph-fade-up 220ms ease-out both;
+}
+
+.graph-lane-line,
+.graph-empty-lane .graph-lane-line {
+  animation: graph-fade-line 260ms ease-out both;
+  stroke-dasharray: 6 8;
+  stroke-dashoffset: 14;
+}
+
+.graph-lane-line {
+  stroke: #cbd5e1;
+}
+
+.graph-lane-text,
+.graph-empty-lane .graph-lane-text {
+  animation: graph-fade-up 240ms ease-out both;
+  fill: #334155;
+}
+
+.graph-branch-label {
+  animation: graph-fade-up 250ms ease-out both;
+  transition: fill 180ms ease;
+  fill: #0f172a;
+}
+
+.graph-legend {
+  pointer-events: none;
+}
+
+.graph-branch-pill-wrap {
+  animation: graph-fade-up 240ms ease-out both;
+  transition: transform 180ms ease;
+}
+
+.graph-branch-pill {
+  fill: #e2e8f0;
+  stroke: #94a3b8;
+  stroke-width: 1;
+}
+
+.graph-branch-connector {
+  stroke: #94a3b8;
+  strokeWidth: 1.5;
+}
+
+.graph-head-badge-move {
+  transform: translate(var(--head-x), var(--head-y));
+  transition: transform 360ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  transform-origin: top left;
+  transform-box: fill-box;
+}
+
+.graph-head-badge {
+  animation: graph-head-pulse 320ms ease-out both;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+
+.graph-head-text {
+  animation: graph-fade-up 220ms ease-out both;
+}
+
+.graph-empty-msg,
+.graph-empty-guide,
+.graph-empty-guide-line {
+  animation: graph-fade-up 240ms ease-out both;
+}
+
+.graph-empty-guide-line:nth-child(1) {
+  animation-delay: 120ms;
+}
+
+.graph-empty-guide-line:nth-child(2) {
+  animation-delay: 180ms;
+}
+
+.graph-canvas text {
+  font-family: Arial, sans-serif;
+}
+
+.graph-node,
+.graph-edge,
+.graph-branch-label,
+.graph-head-badge,
+.graph-head-text,
+.graph-lane-line,
+.graph-lane-text,
+.graph-empty-msg,
+.graph-empty-guide,
+.graph-empty-guide-line,
+.graph-empty-lane {
+  transition: opacity 220ms ease, transform 220ms ease;
 }
 
 @keyframes graph-draw-edge {
   from {
     stroke-dashoffset: -100;
+    opacity: 0;
   }
 
   to {
     stroke-dashoffset: 0;
+    opacity: 1;
   }
 }
 
@@ -42,6 +171,76 @@
   from {
     opacity: 0;
     transform: scale(0.4) translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes graph-enter-edge {
+  from {
+    opacity: 0;
+    stroke-dashoffset: -100;
+  }
+
+  to {
+    opacity: 1;
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes graph-pop-sub {
+  from {
+    transform: scale(0.85);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes graph-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(7px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes graph-fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes graph-fade-line {
+  from {
+    opacity: 0;
+    stroke-dashoffset: 14;
+  }
+
+  to {
+    opacity: 1;
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes graph-head-pulse {
+  from {
+    opacity: 0;
+    transform: scale(0.94) translateY(6px);
   }
 
   to {

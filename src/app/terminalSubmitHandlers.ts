@@ -5,6 +5,12 @@ import type { GitAction } from '../git/reducer'
 import { GitActionType } from '../git/reducer'
 import type { GitState } from '../git/types'
 
+function sleep(ms: number) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms)
+  })
+}
+
 export function runTerminalInput(input: string, baseState: GitState) {
   const lines = input
     .split(/\r?\n/)
@@ -41,23 +47,129 @@ export function createSubmitHandler(
   dispatch: Dispatch<GitAction>,
 ) {
   return () => {
-    const result = runTerminalInput(state.terminal.input, state)
+    void (async () => {
+      const lines = state.terminal.input
+        .split(/\r?\n/)
+        .map((line) => line.trim())
+        .filter((line) => line.length > 0)
 
-    dispatch({
-      type: GitActionType.Initialize,
-      payload: {
-        ...result.nextState,
-        terminal: {
-          ...result.nextState.terminal,
-          history: result.history,
-          historyCursor: null,
-          draftInput: '',
-          input: '',
-        },
-      },
-    })
+      const now = Date.now()
+      let nextState = state
+      const nextHistory = [...state.terminal.history]
 
-    dispatch({ type: GitActionType.SetTerminalInput, payload: '' })
+      dispatch({ type: GitActionType.SetTerminalInput, payload: '' })
+      dispatch({ type: GitActionType.SetTerminalDraftInput, payload: '' })
+
+      if (lines.length === 0) {
+        return
+      }
+
+      for (let index = 0; index < lines.length; index += 1) {
+        const line = lines[index]
+        const ast = parseCommand(line)
+        const result = executeCommand(nextState, ast)
+        nextState = result.nextState
+
+        nextHistory.push({
+          id: String(now + index),
+          cmd: line,
+          out: result.out,
+          err: result.err,
+          timestamp: now + index,
+        })
+
+        dispatch({
+          type: GitActionType.Initialize,
+          payload: {
+            ...nextState,
+            terminal: {
+              ...nextState.terminal,
+              history: [...nextHistory],
+              historyCursor: null,
+              draftInput: '',
+              input: '',
+            },
+          },
+        })
+
+        if (index < lines.length - 1) {
+          await sleep(1000)
+        }
+      }
+    })()
+  }
+}
+
+export function createRunScriptHandler(
+  state: GitState,
+  dispatch: Dispatch<GitAction>,
+  script: string,
+  delayMs = 1000,
+  options?: {
+    onStart?: () => void
+    onFinish?: () => void
+    onError?: () => void
+  },
+) {
+  return async () => {
+    const lines = script
+      .split(/\r?\n/)
+      .map((line) => line.trim())
+      .filter((line) => line.length > 0)
+
+    if (lines.length === 0) {
+      options?.onFinish?.()
+      return
+    }
+
+    options?.onStart?.()
+
+    try {
+      let nextState = state
+      const nextHistory = [...state.terminal.history]
+      const now = Date.now()
+
+      dispatch({ type: GitActionType.SetTerminalInput, payload: '' })
+      dispatch({ type: GitActionType.SetTerminalDraftInput, payload: '' })
+
+      for (let index = 0; index < lines.length; index += 1) {
+        const line = lines[index]
+        const ast = parseCommand(line)
+        const result = executeCommand(nextState, ast)
+        nextState = result.nextState
+
+        nextHistory.push({
+          id: String(now + index),
+          cmd: line,
+          out: result.out,
+          err: result.err,
+          timestamp: now + index,
+        })
+
+        dispatch({
+          type: GitActionType.Initialize,
+          payload: {
+            ...nextState,
+            terminal: {
+              ...nextState.terminal,
+              history: [...nextHistory],
+              historyCursor: null,
+              draftInput: '',
+              input: '',
+            },
+          },
+        })
+
+        if (index < lines.length - 1) {
+          await sleep(delayMs)
+        }
+      }
+
+      options?.onFinish?.()
+    } catch {
+      options?.onError?.()
+      options?.onFinish?.()
+    }
   }
 }
 

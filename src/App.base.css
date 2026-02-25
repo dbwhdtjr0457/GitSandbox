@@ -14,6 +14,7 @@ body {
 }
 
 .app-shell {
+  position: relative;
   width: min(1400px, calc(100vw - 32px));
   margin: 0 auto;
   height: 100vh;
@@ -23,6 +24,8 @@ body {
 }
 
 .app-header {
+  position: relative;
+  z-index: 99999;
   flex: 0 0 auto;
   padding: 14px 20px;
   border-bottom: 1px solid #d9ddff;
@@ -48,6 +51,43 @@ body {
   padding: 10px 15px;
   font-weight: 600;
   font-size: 15px;
+}
+
+.app-demo-button {
+  border: 1px solid #7dd3fc;
+  background: #0284c7;
+  color: #ffffff;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.app-demo-catalog-button {
+  border: 1px solid #7dd3fc;
+  background: #0369a1;
+  color: #ffffff;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.app-conflict-demo-button {
+  border: 1px solid #fca5a5;
+  background: #b91c1c;
+  color: #ffffff;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.app-demo-button:disabled,
+.app-conflict-demo-button:disabled,
+.app-demo-catalog-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 .app-reset-button {
@@ -153,6 +193,102 @@ body {
 .tutorial-body {
   display: grid;
   gap: 10px;
+}
+
+.demo-catalog-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(2px);
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  z-index: 50;
+}
+
+.demo-catalog-modal {
+  width: min(840px, 92vw);
+  max-height: 86vh;
+  overflow: auto;
+  background: #f8fafc;
+  color: #1e293b;
+  border: 1px solid #bfdbfe;
+  border-radius: 12px;
+  box-shadow: 0 20px 45px rgba(2, 6, 23, 0.25);
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.demo-catalog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.demo-catalog-header h2 {
+  margin: 0;
+  font-size: 22px;
+}
+
+.demo-catalog-body {
+  display: grid;
+  gap: 12px;
+}
+
+.demo-catalog-note {
+  margin: 0;
+  color: #334155;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.demo-catalog-list {
+  display: grid;
+  gap: 10px;
+}
+
+.demo-catalog-item {
+  border: 1px solid #dbeafe;
+  border-radius: 10px;
+  padding: 12px;
+  background: #ffffff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.demo-catalog-content {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  flex: 1;
+}
+
+.demo-catalog-content h3 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.demo-catalog-content p {
+  margin: 0;
+  color: #334155;
+  font-size: 14px;
+}
+
+.demo-catalog-content pre {
+  margin: 0;
+  font-size: 12px;
+  white-space: pre-wrap;
+  color: #0f172a;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 8px 10px;
+  max-height: 130px;
+  overflow: auto;
 }
 
 .tutorial-list,

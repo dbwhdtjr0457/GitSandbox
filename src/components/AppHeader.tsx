@@ -1,4 +1,4 @@
-﻿import type { HeadRef } from '../git/types'
+import type { HeadRef } from '../git/types'
 
 type AppHeaderProps = {
   initialized: boolean
@@ -6,6 +6,8 @@ type AppHeaderProps = {
   onLogState: () => void
   onReset: () => void
   onOpenTutorial: () => void
+  onOpenDemoCatalog: () => void
+  isDemoRunning: boolean
 }
 
 export function AppHeader({
@@ -14,6 +16,8 @@ export function AppHeader({
   onLogState,
   onReset,
   onOpenTutorial,
+  onOpenDemoCatalog,
+  isDemoRunning,
 }: AppHeaderProps) {
   return (
     <header className="app-header">
@@ -23,14 +27,19 @@ export function AppHeader({
         {head.commitId ? ` (${head.commitId})` : ''}
       </div>
       <div className="app-header-actions">
-        <button
-          type="button"
-          className="app-help-button"
-          onClick={onOpenTutorial}
-          aria-label="튜토리얼 열기"
-        >
+        <button type="button" className="app-help-button" onClick={onOpenTutorial} aria-label="Open tutorial">
           ?
         </button>
+
+        <button
+          type="button"
+          className="app-demo-catalog-button"
+          onClick={onOpenDemoCatalog}
+          disabled={isDemoRunning}
+        >
+          {isDemoRunning ? 'Demo running...' : 'Demo Scenarios'}
+        </button>
+
         <button type="button" className="app-log-button" onClick={onLogState}>
           Log State
         </button>
@@ -41,3 +50,4 @@ export function AppHeader({
     </header>
   )
 }
+
