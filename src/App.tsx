@@ -49,35 +49,61 @@ function App() {
   }
 
   const handleTerminalSubmit = () => {
-    const ast = parseCommand(state.terminal.input)
-    const result = executeCommand(state, ast)
+    const lines = state.terminal.input
+      .split(/\r?\n/)
+      .map((line) => line.trim())
+      .filter((line) => line.length > 0)
 
-    dispatch({
-      type: GitActionType.Initialize,
-      payload: result.nextState,
+    if (lines.length === 0) {
+      dispatch({
+        type: GitActionType.SetTerminalInput,
+        payload: '',
+      })
+      dispatch({
+        type: GitActionType.SetTerminalHistoryCursor,
+        payload: null,
+      })
+      dispatch({
+        type: GitActionType.SetTerminalDraftInput,
+        payload: '',
+      })
+      return
+    }
+
+    let nextState = state
+    const nextHistory = [...state.terminal.history]
+    const timestamp = Date.now()
+
+    lines.forEach((line, index) => {
+      const ast = parseCommand(line)
+      const result = executeCommand(nextState, ast)
+      nextState = result.nextState
+
+      nextHistory.push({
+        id: String(timestamp + index),
+        cmd: line,
+        out: result.out,
+        err: result.err,
+        timestamp: timestamp + index,
+      })
     })
 
     dispatch({
-      type: GitActionType.PushTerminalEntry,
+      type: GitActionType.Initialize,
       payload: {
-        id: String(state.meta.nextId + state.terminal.history.length),
-        cmd: state.terminal.input,
-        out: result.out,
-        err: result.err,
-        timestamp: Date.now(),
+        ...nextState,
+        terminal: {
+          ...nextState.terminal,
+          history: nextHistory,
+          historyCursor: null,
+          draftInput: '',
+          input: '',
+        },
       },
     })
 
     dispatch({
       type: GitActionType.SetTerminalInput,
-      payload: '',
-    })
-    dispatch({
-      type: GitActionType.SetTerminalHistoryCursor,
-      payload: null,
-    })
-    dispatch({
-      type: GitActionType.SetTerminalDraftInput,
       payload: '',
     })
   }

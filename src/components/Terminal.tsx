@@ -28,7 +28,7 @@ export function Terminal({
   }, [history])
 
   const handleKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
-    if (event.key === 'Enter') {
+    if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault()
       onSubmit()
       return
