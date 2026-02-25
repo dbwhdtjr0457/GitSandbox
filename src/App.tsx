@@ -16,6 +16,7 @@ import { parseCommand } from './git/parse'
 import { executeCommand } from './git/execute'
 import AppTutorialModal from './components/AppTutorialModal'
 import { AppDemoCatalogModal } from './components/AppDemoCatalogModal'
+import type { GitState, TerminalEntry } from './git/types'
 
 type DemoStep =
   | { type: 'command'; line: string }
@@ -315,7 +316,7 @@ export function App() {
 
     setIsDemoRunning(true)
 
-    const cleanState = {
+    const cleanState: GitState = {
       ...initialState,
       terminal: {
         ...initialState.terminal,
@@ -330,8 +331,8 @@ export function App() {
     dispatch({ type: GitActionType.SetTerminalDraftInput, payload: '' })
     dispatch({ type: GitActionType.Initialize, payload: cleanState })
 
-    let nextState = cleanState
-    const nextHistory = [...cleanState.terminal.history]
+    let nextState: GitState = cleanState
+    const nextHistory: TerminalEntry[] = [...cleanState.terminal.history]
     const now = Date.now()
 
     try {
