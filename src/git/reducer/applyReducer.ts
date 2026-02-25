@@ -16,7 +16,10 @@ export function reducer(state: GitState, action: GitAction): GitState {
     case GitActionType.SetTerminalHistoryCursor:
       return { ...state, terminal: { ...state.terminal, historyCursor: action.payload } }
     case GitActionType.PushTerminalEntry:
-      return { ...state, terminal: { ...state.terminal, history: [...state.terminal.history, action.payload] } }
+      return {
+        ...state,
+        terminal: { ...state.terminal, history: [...state.terminal.history, action.payload] },
+      }
     case GitActionType.AddCommit:
       return { ...state, commits: { ...state.commits, [action.payload.id]: action.payload } }
     case GitActionType.SetBranch:

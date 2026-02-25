@@ -16,9 +16,7 @@ import AppTutorialModal from './components/AppTutorialModal'
 import { AppDemoCatalogModal } from './components/AppDemoCatalogModal'
 import type { GitState, TerminalEntry } from './git/types'
 
-type DemoStep =
-  | { type: 'command'; line: string }
-  | { type: 'editor'; text: string }
+type DemoStep = { type: 'command'; line: string } | { type: 'editor'; text: string }
 
 type DemoScenario = {
   id: string
@@ -27,9 +25,10 @@ type DemoScenario = {
   steps: DemoStep[]
 }
 
-const sleep = (ms: number) => new Promise((resolve) => {
-  setTimeout(resolve, ms)
-})
+const sleep = (ms: number) =>
+  new Promise((resolve) => {
+    setTimeout(resolve, ms)
+  })
 
 const baseDemoSteps: DemoStep[] = [
   { type: 'command', line: 'git init' },
@@ -65,21 +64,15 @@ const conflictDemoSteps: DemoStep[] = [
 const baseDemoScenarios: Omit<DemoScenario, 'title' | 'description'>[] = [
   {
     id: 'help',
-    steps: [
-      { type: 'command', line: 'help' },
-    ],
+    steps: [{ type: 'command', line: 'help' }],
   },
   {
     id: 'init-only',
-    steps: [
-      { type: 'command', line: 'git init' },
-    ],
+    steps: [{ type: 'command', line: 'git init' }],
   },
   {
     id: 'status-before-init',
-    steps: [
-      { type: 'command', line: 'git status' },
-    ],
+    steps: [{ type: 'command', line: 'git status' }],
   },
   {
     id: 'init-status',
@@ -440,7 +433,11 @@ export function App() {
         onRun={handleRunDemoScenario}
         isDemoRunning={isDemoRunning}
       />
-      <AppTutorialModal open={isTutorialOpen} onClose={() => setIsTutorialOpen(false)} strings={strings} />
+      <AppTutorialModal
+        open={isTutorialOpen}
+        onClose={() => setIsTutorialOpen(false)}
+        strings={strings}
+      />
 
       <div className="layout">
         <section className="panel graph-panel">
@@ -470,7 +467,9 @@ export function App() {
             ) : (
               <Editor
                 value={state.editorText}
-                onChange={(value) => dispatch({ type: GitActionType.EditorSetText, payload: value })}
+                onChange={(value) =>
+                  dispatch({ type: GitActionType.EditorSetText, payload: value })
+                }
               />
             )}
           </div>

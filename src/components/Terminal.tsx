@@ -62,22 +62,23 @@ export function Terminal({
         <div className="terminal-empty">
           <div className="terminal-empty-line">{terminalEnglishText.welcome}</div>
           <div className="terminal-empty-line">
-            <span>{terminalEnglishText.runHelpPrefix}</span>
-            {' '}
+            <span>{terminalEnglishText.runHelpPrefix}</span>{' '}
             <strong>{terminalEnglishText.helpWord}</strong>
             <span>{terminalEnglishText.runHelpSuffix}</span>
           </div>
-          <div className="terminal-empty-line">
-            {terminalEnglishText.prompt}
-            {' '}
-            git
-          </div>
+          <div className="terminal-empty-line">{terminalEnglishText.prompt} git</div>
         </div>
         {history.map((entry) => (
           <div key={entry.id} className="terminal-entry">
-            <div className="terminal-command">{terminalEnglishText.prompt} {entry.cmd}</div>
+            <div className="terminal-command">
+              {terminalEnglishText.prompt} {entry.cmd}
+            </div>
             {entry.out && <pre className="terminal-output">{entry.out}</pre>}
-            {entry.err && <pre className="terminal-error">{terminalEnglishText.errorPrefix} {entry.err}</pre>}
+            {entry.err && (
+              <pre className="terminal-error">
+                {terminalEnglishText.errorPrefix} {entry.err}
+              </pre>
+            )}
           </div>
         ))}
       </div>

@@ -8,7 +8,8 @@ export const messages = {
     branchExists: (name: string) => `fatal: A branch named '${name}' already exists.`,
     noSuchBranch: (name: string) => `error: pathspec '${name}' did not match any branch`,
     badRevision: (id: string) => `fatal: bad revision '${id}'`,
-    detachedHeadNotSupported: () => 'fatal: cannot merge while HEAD is detached (MVP not supported)',
+    detachedHeadNotSupported: () =>
+      'fatal: cannot merge while HEAD is detached (MVP not supported)',
     commitRequiredForMerge: (name: string) => `fatal: invalid refspec '${name}'`,
     unhandledCommand: () => 'Unhandled command.',
   },

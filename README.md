@@ -170,3 +170,48 @@ src/
 
 - 데모는 매 단계가 터미널 히스토리에 기록되어 실행 과정을 추적하기 쉽습니다.
 - `git` 상태 변경, 그래프, 에디터 스냅샷이 같은 흐름으로 갱신됩니다.
+
+## Refactor ���� (���� �����͸� ���ռ� ����)
+
+### 0) ������ ���ռ�
+
+- `src` import ���� ��� ������ ��Ű��: `@monaco-editor/react`, `monaco-editor`
+- `src`���� `@uiw/react-codemirror`, `@codemirror/*`�� import ����
+- `package.json`/`package-lock.json`�� ���� ��� ��Ű�� �������� ���� ������
+
+### 1) Prettier ����
+
+- `.prettierrc`, `.prettierignore` �߰�
+- `format`, `format:check` ��ũ��Ʈ �߰�
+- `npm run format:check` ���
+
+### 3) unborn branch(null tip) ���ռ�
+
+- `merge`���� ��� �귣ġ `null`�� �� `Already up to date`
+- ���� �귣ġ�� `null`, ��� �귣ġ�� Ŀ���̸� `Fast-forward`
+- `isAncestor`�� `null` ���̽��� ���� ��Ģ���� ó��
+
+### 4) merge ����/�޽��� ����
+
+- �귣ġ ���� ������ `requireBranchExists`�� ����
+- �귣ġ ������ �� `error: pathspec '...' did not match any branch`
+
+### 5) �׷��� ���� ���ռ�
+
+- ���� �켱����: `timestamp desc` �� `cN ���� ID` �� `string fallback`
+
+### ���� �ó����� ���� (10��)
+
+```text
+help
+git init
+git commit -m "init"
+git commit -m "main: bootstrap"
+git branch feat
+git switch feat
+git commit -m "feat: add editor"
+git switch main
+git merge feat
+git status
+git log --oneline
+```

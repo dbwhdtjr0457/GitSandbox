@@ -21,7 +21,12 @@ export function AppHeader({
     <header className="app-header">
       <div className="app-header-title">{strings.header.title}</div>
       <div className="app-header-actions">
-        <button type="button" className="app-help-button" onClick={onOpenTutorial} aria-label={strings.header.helpAria}>
+        <button
+          type="button"
+          className="app-help-button"
+          onClick={onOpenTutorial}
+          aria-label={strings.header.helpAria}
+        >
           ?
         </button>
 

@@ -19,7 +19,8 @@ function nodeCircle(
 ) {
   const badgeText = isReachable ? null : strings.dangling
   const delayBase = `${nodeIndex * 60}ms`
-  const parentText = point.commit.parents.length > 0 ? point.commit.parents.join(', ') : strings.parentsNone
+  const parentText =
+    point.commit.parents.length > 0 ? point.commit.parents.join(', ') : strings.parentsNone
   return (
     <g
       key={point.commit.id}
@@ -62,7 +63,14 @@ function nodeCircle(
       {badgeText ? (
         <g className="graph-node-badge" style={{ animationDelay: `${nodeIndex * 60 + 50}ms` }}>
           <rect x={point.x - 30} y={point.y + 18} width="60" height="16" rx="8" fill="#4b5563" />
-          <text x={point.x} y={point.y + 30} fill="#f9fafb" textAnchor="middle" fontSize="10" className="graph-node-badge-text">
+          <text
+            x={point.x}
+            y={point.y + 30}
+            fill="#f9fafb"
+            textAnchor="middle"
+            fontSize="10"
+            className="graph-node-badge-text"
+          >
             {badgeText}
           </text>
         </g>
@@ -117,7 +125,11 @@ export function renderNodes({ data }: { data: GraphLayoutData }) {
   })
 }
 
-export function renderHeadBadge({ data }: { data: GraphLayoutData }, headText: string, headCommitId: string | null) {
+export function renderHeadBadge(
+  { data }: { data: GraphLayoutData },
+  headText: string,
+  headCommitId: string | null,
+) {
   if (!headCommitId) {
     return null
   }
@@ -142,23 +154,8 @@ export function renderHeadBadge({ data }: { data: GraphLayoutData }, headText: s
         } as CSSProperties & { '--head-x': string; '--head-y': string }
       }
     >
-      <rect
-        x="0"
-        y="0"
-        width="50"
-        height="20"
-        rx="8"
-        fill="#16a34a"
-        className="graph-head-badge"
-      />
-      <text
-        x="25"
-        y="16"
-        fill="#fff"
-        textAnchor="middle"
-        fontSize="12"
-        className="graph-head-text"
-      >
+      <rect x="0" y="0" width="50" height="20" rx="8" fill="#16a34a" className="graph-head-badge" />
+      <text x="25" y="16" fill="#fff" textAnchor="middle" fontSize="12" className="graph-head-text">
         {headText}
       </text>
     </g>

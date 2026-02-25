@@ -3,7 +3,13 @@ import type { GraphLayoutData } from './graphTypes'
 type GraphCanvasEmptyProps = {
   data: Pick<
     GraphLayoutData,
-    'branchEntries' | 'branchesByLane' | 'laneIndexByValue' | 'width' | 'baseX' | 'laneGap' | 'sidePadding'
+    | 'branchEntries'
+    | 'branchesByLane'
+    | 'laneIndexByValue'
+    | 'width'
+    | 'baseX'
+    | 'laneGap'
+    | 'sidePadding'
   >
 }
 
@@ -58,21 +64,19 @@ const splitToWrappedLines = (text: string, availableWidth: number): string[] => 
 
 export function GraphCanvasEmpty({ data }: GraphCanvasEmptyProps) {
   const hasBranches = data.branchEntries.length > 0
-  const availableTextWidth = Math.max(
-    200,
-    data.width - GRAPH_TEXT_PADDING_X * 2,
-  )
+  const availableTextWidth = Math.max(200, data.width - GRAPH_TEXT_PADDING_X * 2)
   const noCommitLines = splitToWrappedLines(graphEnglishEmptyText.noCommits, availableTextWidth)
   const guideLines = hasBranches
     ? []
     : [
-      ...splitToWrappedLines(graphEnglishEmptyText.initLine1, availableTextWidth),
-      ...splitToWrappedLines(graphEnglishEmptyText.initLine2, availableTextWidth),
-    ]
+        ...splitToWrappedLines(graphEnglishEmptyText.initLine1, availableTextWidth),
+        ...splitToWrappedLines(graphEnglishEmptyText.initLine2, availableTextWidth),
+      ]
   const guideStartY = 52 + Math.max(0, noCommitLines.length - 1) * GRAPH_TEXT_LINE_HEIGHT
-  const contentBottomY = guideLines.length > 0
-    ? guideStartY + guideLines.length * GRAPH_TEXT_LINE_HEIGHT + 8
-    : 70 + Math.max(0, noCommitLines.length - 1) * GRAPH_TEXT_LINE_HEIGHT
+  const contentBottomY =
+    guideLines.length > 0
+      ? guideStartY + guideLines.length * GRAPH_TEXT_LINE_HEIGHT + 8
+      : 70 + Math.max(0, noCommitLines.length - 1) * GRAPH_TEXT_LINE_HEIGHT
   const viewHeight = Math.max(180, contentBottomY + 24)
 
   return (
@@ -91,7 +95,11 @@ export function GraphCanvasEmpty({ data }: GraphCanvasEmptyProps) {
           return null
         }
         return (
-          <g key={`lane-label-empty-${laneValue}`} className="graph-empty-lane" style={{ animationDelay: `${delay}ms` }}>
+          <g
+            key={`lane-label-empty-${laneValue}`}
+            className="graph-empty-lane"
+            style={{ animationDelay: `${delay}ms` }}
+          >
             <line
               x1={x}
               y1="28"

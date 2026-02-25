@@ -3,10 +3,7 @@ import type { GitAction } from '../git/reducer'
 import { GitActionType } from '../git/reducer'
 import type { GitState } from '../git/types'
 
-export function createHistoryUpHandler(
-  state: GitState,
-  dispatch: Dispatch<GitAction>,
-): () => void {
+export function createHistoryUpHandler(state: GitState, dispatch: Dispatch<GitAction>): () => void {
   return () => {
     const history = state.terminal.history
     if (history.length === 0) {

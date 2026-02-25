@@ -48,7 +48,10 @@ export function parseCommand(line: string): ParsedCommand {
     if (args.length === 2 && args[0] === '-c') {
       return { kind: 'switchCreate', name: args[1] }
     }
-    return { kind: 'error', message: 'Invalid switch command. Usage: git switch <name> or git switch -c <name>' }
+    return {
+      kind: 'error',
+      message: 'Invalid switch command. Usage: git switch <name> or git switch -c <name>',
+    }
   }
 
   if (command === 'merge' && args.length === 1) {

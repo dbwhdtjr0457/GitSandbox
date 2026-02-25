@@ -41,7 +41,12 @@ function AppTutorialModalComponent({ open, onClose, strings }: AppTutorialModalP
       <section className="tutorial-modal" onClick={onPanelClick}>
         <header className="tutorial-header">
           <h2>{strings.tutorial.title}</h2>
-          <button type="button" className="tutorial-close" onClick={onClose} aria-label={strings.tutorial.closeAria}>
+          <button
+            type="button"
+            className="tutorial-close"
+            onClick={onClose}
+            aria-label={strings.tutorial.closeAria}
+          >
             ×
           </button>
         </header>

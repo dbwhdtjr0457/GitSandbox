@@ -42,10 +42,7 @@ export function runTerminalInput(input: string, baseState: GitState) {
   return { nextState, history: nextHistory }
 }
 
-export function createSubmitHandler(
-  state: GitState,
-  dispatch: Dispatch<GitAction>,
-) {
+export function createSubmitHandler(state: GitState, dispatch: Dispatch<GitAction>) {
   return () => {
     void (async () => {
       const lines = state.terminal.input
@@ -173,7 +170,10 @@ export function createRunScriptHandler(
   }
 }
 
-export function createResetHandler(dispatch: Dispatch<GitAction>, initialState: GitState): () => void {
+export function createResetHandler(
+  dispatch: Dispatch<GitAction>,
+  initialState: GitState,
+): () => void {
   return () => {
     dispatch({ type: GitActionType.Initialize, payload: initialState })
   }

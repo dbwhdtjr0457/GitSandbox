@@ -103,7 +103,7 @@
 
 .graph-branch-connector {
   stroke: #94a3b8;
-  strokeWidth: 1.5;
+  strokewidth: 1.5;
 }
 
 .graph-head-badge-move {
@@ -152,7 +152,9 @@
 .graph-empty-guide,
 .graph-empty-guide-line,
 .graph-empty-lane {
-  transition: opacity 220ms ease, transform 220ms ease;
+  transition:
+    opacity 220ms ease,
+    transform 220ms ease;
 }
 
 @keyframes graph-draw-edge {

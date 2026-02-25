@@ -16,7 +16,10 @@ export function hasOwn<T extends object>(obj: T, key: PropertyKey): boolean {
   return Object.prototype.hasOwnProperty.call(obj, key)
 }
 
-export function getSnapshotByCommitId(commitId: string | null, commits: Record<string, Commit>): string {
+export function getSnapshotByCommitId(
+  commitId: string | null,
+  commits: Record<string, Commit>,
+): string {
   if (!commitId) {
     return ''
   }

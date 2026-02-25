@@ -136,7 +136,8 @@ const ko: LocaleStrings = {
       'reset / revert / status / log: 포인터 이동과 이력 추적 방식을 확인합니다.',
     ],
     closeHint: '입력한 명령은 터미널 히스토리에 기록되며, 결과는 한 줄씩 순서대로 표시됩니다.',
-    demoHint: '데모는 실행 전 상태를 초기화한 뒤 자동으로 재생되므로, 언제든 동일한 출발점에서 연습 가능합니다.',
+    demoHint:
+      '데모는 실행 전 상태를 초기화한 뒤 자동으로 재생되므로, 언제든 동일한 출발점에서 연습 가능합니다.',
   },
   demo: {
     title: '데모 시나리오',
@@ -148,24 +149,78 @@ const ko: LocaleStrings = {
     items: {
       help: { title: '1) help', description: '지원 명령어 목록부터 확인합니다.' },
       'init-only': { title: '2) git init only', description: '저장소를 한 번만 초기화합니다.' },
-      'status-before-init': { title: '3) status before init', description: '초기화되지 않은 상태의 status 에러를 확인합니다.' },
-      'init-status': { title: '4) init + status', description: 'init 후 바로 status를 실행합니다.' },
-      'single-commit': { title: '5) single commit', description: '첫 커밋 생성 후 그래프에 첫 노드가 생기는지 확인합니다.' },
-      'two-commits': { title: '6) two commits', description: '두 개의 커밋으로 짧은 이력과 커밋 ID를 확인합니다.' },
-      'create-branch': { title: '7) branch create', description: '현재 HEAD에서 branch를 생성합니다.' },
-      'switch-to-branch': { title: '8) switch branch', description: '브랜치로 전환 후 커밋을 이어 작성합니다.' },
-      'switch-create-branch': { title: '9) switch -c', description: '한 번에 새 브랜치 생성 및 전환을 확인합니다.' },
-      'checkout-branch': { title: '10) checkout branch', description: '브랜치 이름으로 checkout을 수행합니다.' },
-      'checkout-commit': { title: '11) checkout commit', description: '커밋 해시로 detached 상태를 확인합니다.' },
-      'switch-error': { title: '12) invalid switch error', description: '잘못된 브랜치 이름 에러를 확인합니다.' },
-      'merge-ff': { title: '13) fast-forward merge', description: 'Fast-forward 병합 케이스를 확인합니다.' },
-      'merge-non-ff': { title: '14) non-fast-forward merge', description: '분기 후 non-FF 병합 커밋이 생성되는 흐름을 확인합니다.' },
-      'log-oneline-baseline': { title: '15) log oneline', description: 'HEAD 기준 1-parent 로그 순서를 확인합니다.' },
-      'revert-only': { title: '16) revert command', description: '기존 커밋을 되돌리는 revert 커밋을 생성합니다.' },
-      'reset-hard-only': { title: '17) reset --hard', description: '포인터와 에디터 스냅샷 롤백을 확인합니다.' },
-      basic: { title: '18) combined: basic flow', description: '초기화/커밋/브랜치/병합을 통합해 확인합니다.' },
-      conflict: { title: '19) combined: merge conflict', description: '각 브랜치에서 다른 내용을 만들고 merge를 통해 흐름을 확인합니다.' },
-      'revert-reset': { title: '20) combined: revert + reset', description: 'revert 후 reset --hard로 되돌림을 확인합니다.' },
+      'status-before-init': {
+        title: '3) status before init',
+        description: '초기화되지 않은 상태의 status 에러를 확인합니다.',
+      },
+      'init-status': {
+        title: '4) init + status',
+        description: 'init 후 바로 status를 실행합니다.',
+      },
+      'single-commit': {
+        title: '5) single commit',
+        description: '첫 커밋 생성 후 그래프에 첫 노드가 생기는지 확인합니다.',
+      },
+      'two-commits': {
+        title: '6) two commits',
+        description: '두 개의 커밋으로 짧은 이력과 커밋 ID를 확인합니다.',
+      },
+      'create-branch': {
+        title: '7) branch create',
+        description: '현재 HEAD에서 branch를 생성합니다.',
+      },
+      'switch-to-branch': {
+        title: '8) switch branch',
+        description: '브랜치로 전환 후 커밋을 이어 작성합니다.',
+      },
+      'switch-create-branch': {
+        title: '9) switch -c',
+        description: '한 번에 새 브랜치 생성 및 전환을 확인합니다.',
+      },
+      'checkout-branch': {
+        title: '10) checkout branch',
+        description: '브랜치 이름으로 checkout을 수행합니다.',
+      },
+      'checkout-commit': {
+        title: '11) checkout commit',
+        description: '커밋 해시로 detached 상태를 확인합니다.',
+      },
+      'switch-error': {
+        title: '12) invalid switch error',
+        description: '잘못된 브랜치 이름 에러를 확인합니다.',
+      },
+      'merge-ff': {
+        title: '13) fast-forward merge',
+        description: 'Fast-forward 병합 케이스를 확인합니다.',
+      },
+      'merge-non-ff': {
+        title: '14) non-fast-forward merge',
+        description: '분기 후 non-FF 병합 커밋이 생성되는 흐름을 확인합니다.',
+      },
+      'log-oneline-baseline': {
+        title: '15) log oneline',
+        description: 'HEAD 기준 1-parent 로그 순서를 확인합니다.',
+      },
+      'revert-only': {
+        title: '16) revert command',
+        description: '기존 커밋을 되돌리는 revert 커밋을 생성합니다.',
+      },
+      'reset-hard-only': {
+        title: '17) reset --hard',
+        description: '포인터와 에디터 스냅샷 롤백을 확인합니다.',
+      },
+      basic: {
+        title: '18) combined: basic flow',
+        description: '초기화/커밋/브랜치/병합을 통합해 확인합니다.',
+      },
+      conflict: {
+        title: '19) combined: merge conflict',
+        description: '각 브랜치에서 다른 내용을 만들고 merge를 통해 흐름을 확인합니다.',
+      },
+      'revert-reset': {
+        title: '20) combined: revert + reset',
+        description: 'revert 후 reset --hard로 되돌림을 확인합니다.',
+      },
     },
   },
   conflict: {
@@ -250,7 +305,8 @@ const en: LocaleStrings = {
       'reset / revert / status / log: Verify pointer movement and history tracking.',
     ],
     closeHint: 'Inputs are appended to terminal history and shown line by line in execution order.',
-    demoHint: 'Demos auto-run from a reset state with short intervals, making repeated practice easy.',
+    demoHint:
+      'Demos auto-run from a reset state with short intervals, making repeated practice easy.',
   },
   demo: {
     title: 'Demo Scenarios',
@@ -262,24 +318,75 @@ const en: LocaleStrings = {
     items: {
       help: { title: '1) help', description: 'Check available commands first.' },
       'init-only': { title: '2) git init only', description: 'Initialize repository once.' },
-      'status-before-init': { title: '3) status before init', description: 'See error when running status before initialization.' },
-      'init-status': { title: '4) init + status', description: 'Run init and immediately check status.' },
-      'single-commit': { title: '5) single commit', description: 'Create first commit and watch graph node appear.' },
+      'status-before-init': {
+        title: '3) status before init',
+        description: 'See error when running status before initialization.',
+      },
+      'init-status': {
+        title: '4) init + status',
+        description: 'Run init and immediately check status.',
+      },
+      'single-commit': {
+        title: '5) single commit',
+        description: 'Create first commit and watch graph node appear.',
+      },
       'two-commits': { title: '6) two commits', description: 'Check short commit chain and IDs.' },
-      'create-branch': { title: '7) branch create', description: 'Create a branch from current HEAD.' },
-      'switch-to-branch': { title: '8) switch branch', description: 'Switch to branch and continue committing.' },
-      'switch-create-branch': { title: '9) switch -c', description: 'Create and switch in one command.' },
-      'checkout-branch': { title: '10) checkout branch', description: 'Checkout using branch name.' },
-      'checkout-commit': { title: '11) checkout commit', description: 'Move to detached state by commit hash.' },
-      'switch-error': { title: '12) invalid switch error', description: 'Check invalid branch error handling.' },
-      'merge-ff': { title: '13) fast-forward merge', description: 'Observe fast-forward merge case.' },
-      'merge-non-ff': { title: '14) non-fast-forward merge', description: 'Diverge commits then create a non-FF merge commit.' },
-      'log-oneline-baseline': { title: '15) log oneline', description: 'Check first-parent log order from HEAD.' },
-      'revert-only': { title: '16) revert command', description: 'Create revert commit from existing commit.' },
-      'reset-hard-only': { title: '17) reset --hard', description: 'Verify pointer rollback and editor snapshot restore.' },
-      basic: { title: '18) combined: basic flow', description: 'Integrated basic init/commit/merge flow.' },
-      conflict: { title: '19) combined: merge conflict', description: 'Create divergence and run merge flow.' },
-      'revert-reset': { title: '20) combined: revert + reset', description: 'Revert then reset --hard rollback pointer and editor snapshot.' },
+      'create-branch': {
+        title: '7) branch create',
+        description: 'Create a branch from current HEAD.',
+      },
+      'switch-to-branch': {
+        title: '8) switch branch',
+        description: 'Switch to branch and continue committing.',
+      },
+      'switch-create-branch': {
+        title: '9) switch -c',
+        description: 'Create and switch in one command.',
+      },
+      'checkout-branch': {
+        title: '10) checkout branch',
+        description: 'Checkout using branch name.',
+      },
+      'checkout-commit': {
+        title: '11) checkout commit',
+        description: 'Move to detached state by commit hash.',
+      },
+      'switch-error': {
+        title: '12) invalid switch error',
+        description: 'Check invalid branch error handling.',
+      },
+      'merge-ff': {
+        title: '13) fast-forward merge',
+        description: 'Observe fast-forward merge case.',
+      },
+      'merge-non-ff': {
+        title: '14) non-fast-forward merge',
+        description: 'Diverge commits then create a non-FF merge commit.',
+      },
+      'log-oneline-baseline': {
+        title: '15) log oneline',
+        description: 'Check first-parent log order from HEAD.',
+      },
+      'revert-only': {
+        title: '16) revert command',
+        description: 'Create revert commit from existing commit.',
+      },
+      'reset-hard-only': {
+        title: '17) reset --hard',
+        description: 'Verify pointer rollback and editor snapshot restore.',
+      },
+      basic: {
+        title: '18) combined: basic flow',
+        description: 'Integrated basic init/commit/merge flow.',
+      },
+      conflict: {
+        title: '19) combined: merge conflict',
+        description: 'Create divergence and run merge flow.',
+      },
+      'revert-reset': {
+        title: '20) combined: revert + reset',
+        description: 'Revert then reset --hard rollback pointer and editor snapshot.',
+      },
     },
   },
   conflict: {

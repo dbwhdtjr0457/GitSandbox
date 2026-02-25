@@ -19,17 +19,27 @@ export function buildGraphData(
   lanes: Record<string, number>,
   head: HeadRef,
 ): GraphLayoutData {
-  const nodes = Object.values(commits).sort(
-    (a, b) => {
-      const aKey = getCommitOrderKey(a)
-      const bKey = getCommitOrderKey(b)
-      if (aKey.timestamp === bKey.timestamp) {
+  const nodes = Object.values(commits).sort((a, b) => {
+    const aKey = getCommitOrderKey(a)
+    const bKey = getCommitOrderKey(b)
+    if (aKey.timestamp === bKey.timestamp) {
+      const aHasNumeric = Number.isFinite(aKey.fallback)
+      const bHasNumeric = Number.isFinite(bKey.fallback)
+      if (aHasNumeric && bHasNumeric) {
         return bKey.fallback - aKey.fallback
       }
+      if (aHasNumeric && !bHasNumeric) {
+        return -1
+      }
+      if (!aHasNumeric && bHasNumeric) {
+        return 1
+      }
 
-      return bKey.timestamp - aKey.timestamp
-    },
-  )
+      return b.id.localeCompare(a.id)
+    }
+
+    return bKey.timestamp - aKey.timestamp
+  })
   const branchEntries = Object.entries(branches)
   const latestCommitId = nodes.length > 0 ? nodes[0].id : null
   const reachableCommits = collectReachableCommits(commits, branches, head)
@@ -56,7 +66,12 @@ export function buildGraphData(
       }
     }
 
-    const emptyLayout = buildEmptyGraphLayout(lanes, branchEntries, laneIndexByValue, reachableCommits)
+    const emptyLayout = buildEmptyGraphLayout(
+      lanes,
+      branchEntries,
+      laneIndexByValue,
+      reachableCommits,
+    )
 
     return {
       ...emptyLayout,

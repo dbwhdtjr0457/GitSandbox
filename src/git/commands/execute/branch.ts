@@ -4,7 +4,11 @@ import { getSnapshotByCommitId, hasOwn } from './executeUtils'
 import { messages } from '../../messages'
 import { requireInitialized } from '../../guards'
 
-export function executeBranch(state: GitState, branchName: string, shouldSwitch: boolean): ExecutionResult {
+export function executeBranch(
+  state: GitState,
+  branchName: string,
+  shouldSwitch: boolean,
+): ExecutionResult {
   if (shouldSwitch) {
     const initError = requireInitialized(state)
     if (initError) {
@@ -20,7 +24,9 @@ export function executeBranch(state: GitState, branchName: string, shouldSwitch:
     }
   }
 
-  const lane = hasOwn(state.meta.lanes, branchName) ? state.meta.lanes[branchName] : state.meta.laneCount
+  const lane = hasOwn(state.meta.lanes, branchName)
+    ? state.meta.lanes[branchName]
+    : state.meta.laneCount
   const assignLane = !hasOwn(state.meta.lanes, branchName)
 
   const nextState: GitState = {

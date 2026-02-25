@@ -13,9 +13,11 @@ function getCommitNumberFromId(id: string): number {
 export function getCommitOrderKey(commit: Commit): { timestamp: number; fallback: number } {
   const ts = Number(commit.timestamp)
   const timestamp = Number.isFinite(ts) ? ts : Number.NEGATIVE_INFINITY
+  const parsed = getCommitNumberFromId(commit.id)
+  const fallback = Number.isInteger(parsed) ? parsed : Number.NaN
   return {
     timestamp,
-    fallback: getCommitNumberFromId(commit.id),
+    fallback,
   }
 }
 

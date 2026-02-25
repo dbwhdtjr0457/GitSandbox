@@ -35,7 +35,15 @@ export function MonacoEditor({ value, onChange, readOnly = false }: MonacoEditor
     onChange(newValue ?? '')
   }
 
-  return <Editor className="editor-cm" height="100%" value={value} onChange={handleChange} options={options} />
+  return (
+    <Editor
+      className="editor-cm"
+      height="100%"
+      value={value}
+      onChange={handleChange}
+      options={options}
+    />
+  )
 }
 
 export default MonacoEditor

@@ -1,9 +1,7 @@
 ﻿import { type MouseEvent } from 'react'
 import type { LocaleStrings } from '../i18n/strings'
 
-type DemoStep =
-  | { type: 'command'; line: string }
-  | { type: 'editor'; text: string }
+type DemoStep = { type: 'command'; line: string } | { type: 'editor'; text: string }
 
 type DemoScenario = {
   id: string
@@ -48,7 +46,9 @@ function AppDemoCatalogModal({
     const limit = 8
     const preview = lines.slice(0, limit)
     const extraCount = lines.length - limit
-    return extraCount > 0 ? [...preview, strings.demo.moreSuffix(extraCount)].join('\n') : preview.join('\n')
+    return extraCount > 0
+      ? [...preview, strings.demo.moreSuffix(extraCount)].join('\n')
+      : preview.join('\n')
   }
 
   return (
@@ -56,7 +56,12 @@ function AppDemoCatalogModal({
       <section className="demo-catalog-modal" onClick={onPanelClick}>
         <header className="demo-catalog-header">
           <h2>{strings.demo.title}</h2>
-          <button type="button" className="tutorial-close" onClick={onClose} aria-label={strings.demo.closeAria}>
+          <button
+            type="button"
+            className="tutorial-close"
+            onClick={onClose}
+            aria-label={strings.demo.closeAria}
+          >
             ×
           </button>
         </header>

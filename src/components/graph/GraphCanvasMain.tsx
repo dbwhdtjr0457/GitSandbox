@@ -38,7 +38,16 @@ export function GraphCanvasMain({ data, head }: GraphCanvasMainProps) {
       style={{ height: `max(100%, ${data.maxY}px)`, width: '100%', minWidth: `${data.width}px` }}
     >
       <g className="graph-legend">
-        <rect x="8" y="4" width="300" height="18" rx="9" fill="#ffffff" fillOpacity="0.92" stroke="#d1d5db" />
+        <rect
+          x="8"
+          y="4"
+          width="300"
+          height="18"
+          rx="9"
+          fill="#ffffff"
+          fillOpacity="0.92"
+          stroke="#d1d5db"
+        />
         <text x="16" y="17" fontSize="11" fill="#334155">
           {graphEnglishText.legend}
         </text>
@@ -49,7 +58,11 @@ export function GraphCanvasMain({ data, head }: GraphCanvasMainProps) {
         <path
           key={edge.key}
           d={edge.d}
-          className={edge.animated ? 'graph-edge graph-edge-enter graph-edge-animate' : 'graph-edge graph-edge-enter'}
+          className={
+            edge.animated
+              ? 'graph-edge graph-edge-enter graph-edge-animate'
+              : 'graph-edge graph-edge-enter'
+          }
           stroke={edge.stroke}
           fill="none"
           strokeWidth="2.2"

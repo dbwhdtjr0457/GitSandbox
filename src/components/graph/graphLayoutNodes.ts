@@ -3,10 +3,7 @@ import type { Commit } from '../../git/types'
 import type { EdgeRenderData, GraphNodePoint } from './graphTypes'
 import { buildEdgePath } from './graphPath'
 
-export function buildNodePoints(
-  nodes: Commit[],
-  laneIndexByValue: Map<number, number>,
-) {
+export function buildNodePoints(nodes: Commit[], laneIndexByValue: Map<number, number>) {
   const positions = new Map<string, GraphNodePoint>()
 
   nodes.forEach((commit, index) => {
