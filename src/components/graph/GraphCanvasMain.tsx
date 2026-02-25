@@ -2,6 +2,14 @@ import type { HeadRef } from '../../git/types'
 import type { GraphLayoutData } from './graphTypes'
 import { renderHeadBadge, renderLaneLabels, renderNodes } from './GraphCanvasNodes'
 
+const graphEnglishText = {
+  legend: 'Graph',
+  parentsLabel: 'Parents',
+  parentsNone: 'none',
+  dangling: 'dangling',
+  branchPrefix: 'branch: ',
+}
+
 type GraphCanvasMainProps = {
   data: GraphLayoutData
   head: HeadRef
@@ -32,7 +40,7 @@ export function GraphCanvasMain({ data, head }: GraphCanvasMainProps) {
       <g className="graph-legend">
         <rect x="8" y="4" width="300" height="18" rx="9" fill="#ffffff" fillOpacity="0.92" stroke="#d1d5db" />
         <text x="16" y="17" fontSize="11" fill="#334155">
-          노드: 커밋 • 위 텍스트: 메시지 • 오른쪽: 브랜치 • 초록: HEAD
+          {graphEnglishText.legend}
         </text>
       </g>
       <rect x="0" y="0" width={data.width} height="28" fill="#f8fafc" />
@@ -84,7 +92,8 @@ export function GraphCanvasMain({ data, head }: GraphCanvasMainProps) {
               fontSize="11.5"
               className="graph-branch-label"
             >
-              branch: {name}
+              {graphEnglishText.branchPrefix}
+              {name}
             </text>
           </g>
         ))

@@ -11,6 +11,16 @@ type TerminalProps = {
   onHistoryDown: () => void
 }
 
+const terminalEnglishText = {
+  welcome: 'Welcome to Git Sandbox Terminal',
+  runHelpPrefix: 'Type ',
+  helpWord: 'help',
+  runHelpSuffix: ' to list available commands.',
+  prompt: '$',
+  errorPrefix: 'error:',
+  inputPlaceholder: 'Type command and press Enter',
+}
+
 export function Terminal({
   input,
   history,
@@ -50,24 +60,31 @@ export function Terminal({
     <section className="terminal-panel">
       <div ref={logRef} className="terminal-history">
         <div className="terminal-empty">
-          <div className="terminal-empty-line">Welcome to Git Sandbox Terminal</div>
+          <div className="terminal-empty-line">{terminalEnglishText.welcome}</div>
           <div className="terminal-empty-line">
-            Run <span className="terminal-inline-code">help</span> to list available commands.
+            <span>{terminalEnglishText.runHelpPrefix}</span>
+            {' '}
+            <strong>{terminalEnglishText.helpWord}</strong>
+            <span>{terminalEnglishText.runHelpSuffix}</span>
           </div>
-          <div className="terminal-empty-line">$ git</div>
+          <div className="terminal-empty-line">
+            {terminalEnglishText.prompt}
+            {' '}
+            git
+          </div>
         </div>
         {history.map((entry) => (
           <div key={entry.id} className="terminal-entry">
-            <div className="terminal-command">$ {entry.cmd}</div>
+            <div className="terminal-command">{terminalEnglishText.prompt} {entry.cmd}</div>
             {entry.out && <pre className="terminal-output">{entry.out}</pre>}
-            {entry.err && <pre className="terminal-error">error: {entry.err}</pre>}
+            {entry.err && <pre className="terminal-error">{terminalEnglishText.errorPrefix} {entry.err}</pre>}
           </div>
         ))}
       </div>
       <div className="terminal-input-wrap">
         <div className="terminal-input-row">
-          <label htmlFor="terminal-input" className="terminal-prompt">
-            $
+          <label htmlFor="terminal-input" className="terminal-input-prefix">
+            {terminalEnglishText.prompt}
           </label>
           <textarea
             id="terminal-input"
@@ -75,7 +92,7 @@ export function Terminal({
             value={input}
             onChange={(event) => onInputChange(event.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="type command and press Enter"
+            placeholder={terminalEnglishText.inputPlaceholder}
           />
         </div>
       </div>

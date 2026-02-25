@@ -43,21 +43,21 @@ body {
   gap: 8px;
 }
 
-.app-log-button {
-  border: 1px solid #bae6fd;
-  background: #0891b2;
-  color: #fff;
-  border-radius: 8px;
-  padding: 10px 15px;
-  font-weight: 600;
-  font-size: 15px;
-}
-
 .app-demo-button {
   border: 1px solid #7dd3fc;
   background: #0284c7;
   color: #ffffff;
   border-radius: 8px;
+  padding: 10px 14px;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.app-locale-button {
+  border: 1px solid #c7d2fe;
+  background: #0f172a;
+  color: #fff;
+  border-radius: 999px;
   padding: 10px 14px;
   font-weight: 600;
   font-size: 14px;
@@ -119,11 +119,6 @@ body {
 .app-header-title {
   font-size: 21px;
   color: #20264d;
-}
-
-.app-header-sub {
-  font-size: 15px;
-  color: #4f5d7d;
 }
 
 .layout {

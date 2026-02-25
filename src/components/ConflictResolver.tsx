@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { DiffEditor } from '@monaco-editor/react'
 import { MonacoEditor } from './MonacoEditor'
+import type { LocaleStrings } from '../i18n/strings'
 
 type ConflictResolverProps = {
   oursText: string
@@ -12,6 +13,7 @@ type ConflictResolverProps = {
   onAcceptOurs: () => void
   onAcceptTheirs: () => void
   onKeepResult: () => void
+  strings: LocaleStrings['conflict']
 }
 
 export function ConflictResolver({
@@ -24,6 +26,7 @@ export function ConflictResolver({
   onAcceptOurs,
   onAcceptTheirs,
   onKeepResult,
+  strings,
 }: ConflictResolverProps) {
   const [diffMode, setDiffMode] = useState<'none' | 'ours' | 'theirs'>('none')
 
@@ -35,43 +38,43 @@ export function ConflictResolver({
     <section className="conflict-resolver">
       <div className="conflict-toolbar">
         <button type="button" className="conflict-btn conflict-btn-ours" onClick={onAcceptOurs}>
-          Accept OURS
+          {strings.acceptOurs}
         </button>
         <button type="button" className="conflict-btn conflict-btn-theirs" onClick={onAcceptTheirs}>
-          Accept THEIRS
+          {strings.acceptTheirs}
         </button>
         <button type="button" className="conflict-btn conflict-btn-keep" onClick={onKeepResult}>
-          Keep RESULT
+          {strings.keepResult}
         </button>
         <button
           type="button"
           className={`conflict-btn ${isDiffOurs ? 'conflict-btn-active' : ''}`}
           onClick={() => setDiffMode(isDiffOurs ? 'none' : 'ours')}
         >
-          OURS↔RESULT Diff
+          {strings.diffOurs}
         </button>
         <button
           type="button"
           className={`conflict-btn ${isDiffTheirs ? 'conflict-btn-active' : ''}`}
           onClick={() => setDiffMode(isDiffTheirs ? 'none' : 'theirs')}
         >
-          THEIRS↔RESULT Diff
+          {strings.diffTheirs}
         </button>
       </div>
 
       <div className="conflict-panels">
         <div className="conflict-pane">
-          <header className="conflict-pane-header">OURS ({oursBranch})</header>
+          <header className="conflict-pane-header">{strings.oursLabel(oursBranch)}</header>
           <MonacoEditor value={oursText} onChange={() => {}} readOnly />
         </div>
 
         <div className="conflict-pane">
-          <header className="conflict-pane-header">THEIRS ({theirsBranch})</header>
+          <header className="conflict-pane-header">{strings.theirsLabel(theirsBranch)}</header>
           <MonacoEditor value={theirsText} onChange={() => {}} readOnly />
         </div>
 
         <div className="conflict-pane conflict-result-pane">
-          <header className="conflict-pane-header">RESULT</header>
+          <header className="conflict-pane-header">{strings.resultLabel}</header>
           <MonacoEditor value={resultText} onChange={onResultChange} />
         </div>
       </div>

@@ -1,33 +1,27 @@
-import type { HeadRef } from '../git/types'
+import type { LocaleStrings } from '../i18n/strings'
 
 type AppHeaderProps = {
-  initialized: boolean
-  head: HeadRef
-  onLogState: () => void
+  strings: LocaleStrings
   onReset: () => void
   onOpenTutorial: () => void
   onOpenDemoCatalog: () => void
   isDemoRunning: boolean
+  onToggleLocale: () => void
 }
 
 export function AppHeader({
-  initialized,
-  head,
-  onLogState,
+  strings,
   onReset,
   onOpenTutorial,
   onOpenDemoCatalog,
   isDemoRunning,
+  onToggleLocale,
 }: AppHeaderProps) {
   return (
     <header className="app-header">
-      <div className="app-header-title">Git Sandbox</div>
-      <div className="app-header-sub">
-        {initialized ? 'Initialized' : 'Not initialized'} / HEAD: {head.type === 'symbolic' ? head.branch : 'detached'}
-        {head.commitId ? ` (${head.commitId})` : ''}
-      </div>
+      <div className="app-header-title">{strings.header.title}</div>
       <div className="app-header-actions">
-        <button type="button" className="app-help-button" onClick={onOpenTutorial} aria-label="Open tutorial">
+        <button type="button" className="app-help-button" onClick={onOpenTutorial} aria-label={strings.header.helpAria}>
           ?
         </button>
 
@@ -37,17 +31,21 @@ export function AppHeader({
           onClick={onOpenDemoCatalog}
           disabled={isDemoRunning}
         >
-          {isDemoRunning ? 'Demo running...' : 'Demo Scenarios'}
+          {isDemoRunning ? strings.header.demoRunning : strings.header.demoCatalog}
         </button>
 
-        <button type="button" className="app-log-button" onClick={onLogState}>
-          Log State
+        <button
+          type="button"
+          className="app-locale-button"
+          onClick={onToggleLocale}
+          aria-label={strings.locale.switchLabel}
+        >
+          {strings.locale.switchLabel}
         </button>
         <button type="button" className="app-reset-button" onClick={onReset}>
-          Reset
+          {strings.header.reset}
         </button>
       </div>
     </header>
   )
 }
-

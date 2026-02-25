@@ -1,8 +1,9 @@
-import { type MouseEvent } from 'react'
+﻿import { type MouseEvent } from 'react'
+import type { LocaleStrings } from '../i18n/strings'
 
 type DemoStep =
   | { type: 'command'; line: string }
-  | { type: 'editor'; text: string; note: string }
+  | { type: 'editor'; text: string }
 
 type DemoScenario = {
   id: string
@@ -17,6 +18,7 @@ type AppDemoCatalogModalProps = {
   demos: DemoScenario[]
   onRun: (scenarioId: string) => void
   isDemoRunning: boolean
+  strings: LocaleStrings
 }
 
 function AppDemoCatalogModal({
@@ -25,6 +27,7 @@ function AppDemoCatalogModal({
   demos,
   onRun,
   isDemoRunning,
+  strings,
 }: AppDemoCatalogModalProps) {
   if (!open) {
     return null
@@ -40,28 +43,25 @@ function AppDemoCatalogModal({
 
   const commandPreview = (steps: DemoStep[]) => {
     const lines = steps
-      .map((item) => (item.type === 'command' ? item.line : `(demo) ${item.note}`))
+      .map((item) => (item.type === 'command' ? item.line : strings.demo.autoEditorLine))
       .filter(Boolean)
     const limit = 8
     const preview = lines.slice(0, limit)
     const extraCount = lines.length - limit
-    return preview.concat(extraCount > 0 ? [`... and ${extraCount} more steps`] : []).join('\n')
+    return extraCount > 0 ? [...preview, strings.demo.moreSuffix(extraCount)].join('\n') : preview.join('\n')
   }
 
   return (
     <div className="demo-catalog-backdrop" onClick={onBackdropClick}>
       <section className="demo-catalog-modal" onClick={onPanelClick}>
         <header className="demo-catalog-header">
-          <h2>Demo Scenarios</h2>
-          <button type="button" className="tutorial-close" onClick={onClose} aria-label="Close demo catalog">
-            x
+          <h2>{strings.demo.title}</h2>
+          <button type="button" className="tutorial-close" onClick={onClose} aria-label={strings.demo.closeAria}>
+            ×
           </button>
         </header>
         <div className="demo-catalog-body">
-          <p className="demo-catalog-note">
-            Each scenario resets the state first, then sends every command to the terminal with a short delay to visualize each
-            step.
-          </p>
+          <p className="demo-catalog-note">{strings.demo.note}</p>
 
           <div className="demo-catalog-list">
             {demos.map((scenario) => (
@@ -77,7 +77,7 @@ function AppDemoCatalogModal({
                   onClick={() => onRun(scenario.id)}
                   disabled={isDemoRunning}
                 >
-                  Run
+                  {strings.demo.runLabel}
                 </button>
               </article>
             ))}

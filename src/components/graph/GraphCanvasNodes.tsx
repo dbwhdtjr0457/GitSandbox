@@ -5,16 +5,28 @@ type CommonProps = {
   data: GraphLayoutData
 }
 
-function nodeCircle(point: GraphNodePoint, nodeIndex: number, isReachable: boolean) {
-  const badgeText = isReachable ? null : 'dangling'
+const graphEnglishNodeText = {
+  parentsLabel: 'Parents',
+  parentsNone: 'none',
+  dangling: 'dangling',
+}
+
+function nodeCircle(
+  point: GraphNodePoint,
+  nodeIndex: number,
+  isReachable: boolean,
+  strings: typeof graphEnglishNodeText,
+) {
+  const badgeText = isReachable ? null : strings.dangling
   const delayBase = `${nodeIndex * 60}ms`
+  const parentText = point.commit.parents.length > 0 ? point.commit.parents.join(', ') : strings.parentsNone
   return (
     <g
       key={point.commit.id}
       className="graph-node graph-node-wrap"
       style={{ animationDelay: delayBase }}
     >
-      <title>{`${point.commit.id}\n${point.commit.message}\nparents: ${point.commit.parents.join(', ') || 'none'}`}</title>
+      <title>{`${point.commit.id}\n${point.commit.message}\n${strings.parentsLabel}: ${parentText}`}</title>
       <circle
         cx={point.x}
         cy={point.y}
@@ -95,17 +107,17 @@ export function renderLaneLabels({ data }: CommonProps) {
   })
 }
 
-export function renderNodes({ data }: CommonProps) {
+export function renderNodes({ data }: { data: GraphLayoutData }) {
   return data.nodes.map((commit, index) => {
     const point = data.positions.get(commit.id)
     if (!point) {
       return null
     }
-    return nodeCircle(point, index, data.reachableCommits.has(commit.id))
+    return nodeCircle(point, index, data.reachableCommits.has(commit.id), graphEnglishNodeText)
   })
 }
 
-export function renderHeadBadge({ data }: CommonProps, headText: string, headCommitId: string | null) {
+export function renderHeadBadge({ data }: { data: GraphLayoutData }, headText: string, headCommitId: string | null) {
   if (!headCommitId) {
     return null
   }
