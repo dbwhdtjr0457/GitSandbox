@@ -35,6 +35,8 @@ export function executeCommand(state: GitState, cmd: CommandAst): ExecutionResul
           '  git switch -c <name>',
           '  git checkout <branch|commit>',
           '  git merge <name>',
+          '  git revert <commitId>',
+          '  git reset --hard <commitId>',
           '  git status',
           '  git log --oneline',
         ].join('\n'),
@@ -380,6 +382,128 @@ export function executeCommand(state: GitState, cmd: CommandAst): ExecutionResul
       return {
         nextState: nextMergeState,
         out: 'Merge made by the \'ort\' strategy.',
+      }
+    }
+    case 'revert': {
+      if (!state.meta.initialized) {
+        return {
+          nextState: state,
+          out: '',
+          err: 'fatal: not a git repository (or any of the parent directories): .git',
+        }
+      }
+
+      const targetCommit = state.commits[cmd.commitId]
+      if (!targetCommit) {
+        return {
+          nextState: state,
+          out: '',
+          err: `fatal: bad revision '${cmd.commitId}'`,
+        }
+      }
+
+      const revertCommitId = `c${state.meta.nextId}`
+      const revertCommit: Commit = {
+        id: revertCommitId,
+        message: `Revert "${targetCommit.message}"`,
+        parents: state.head.commitId ? [state.head.commitId] : [],
+        branch: state.head.type === 'symbolic' ? state.head.branch : null,
+        lane: state.head.type === 'symbolic' ? state.meta.lanes[state.head.branch] ?? 0 : 0,
+        snapshot: state.editorText,
+        timestamp: Date.now(),
+      }
+
+      if (state.head.type === 'symbolic') {
+        return {
+          nextState: {
+            ...state,
+            commits: {
+              ...state.commits,
+              [revertCommitId]: revertCommit,
+            },
+            branches: {
+              ...state.branches,
+              [state.head.branch]: revertCommitId,
+            },
+            head: {
+              ...state.head,
+              commitId: revertCommitId,
+            },
+            meta: {
+              ...state.meta,
+              nextId: state.meta.nextId + 1,
+            },
+          },
+          out: `Reverted ${cmd.commitId}.`,
+        }
+      }
+
+      return {
+        nextState: {
+          ...state,
+          commits: {
+            ...state.commits,
+            [revertCommitId]: revertCommit,
+          },
+          head: {
+            type: 'detached',
+            commitId: revertCommitId,
+          },
+          meta: {
+            ...state.meta,
+            nextId: state.meta.nextId + 1,
+          },
+        },
+        out: `Reverted ${cmd.commitId}.`,
+      }
+    }
+    case 'resetHard': {
+      if (!state.meta.initialized) {
+        return {
+          nextState: state,
+          out: '',
+          err: 'fatal: not a git repository (or any of the parent directories): .git',
+        }
+      }
+
+      if (!Object.prototype.hasOwnProperty.call(state.commits, cmd.commitId)) {
+        return {
+          nextState: state,
+          out: '',
+          err: `fatal: bad revision '${cmd.commitId}'`,
+        }
+      }
+
+      const nextEditorText = getSnapshotByCommitId(cmd.commitId, state.commits)
+
+      if (state.head.type === 'symbolic') {
+        return {
+          nextState: {
+            ...state,
+            head: {
+              ...state.head,
+              commitId: cmd.commitId,
+            },
+            branches: {
+              ...state.branches,
+              [state.head.branch]: cmd.commitId,
+            },
+            editorText: nextEditorText,
+          },
+          out: `HEAD is now at ${cmd.commitId}`,
+        }
+      }
+
+      return {
+        nextState: {
+          ...state,
+          head: {
+            type: 'detached',
+            commitId: cmd.commitId,
+          },
+          editorText: nextEditorText,
+        },
+        out: `HEAD is now at ${cmd.commitId}`,
       }
     }
     case 'status': {

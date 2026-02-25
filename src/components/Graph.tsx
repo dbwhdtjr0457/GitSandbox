@@ -13,8 +13,49 @@ function commitOrderKey(id: string): number {
   return Number.isNaN(numeric) ? 0 : numeric
 }
 
+function collectReachableCommits(
+  commits: Record<string, Commit>,
+  branches: Record<string, string | null>,
+  head: HeadRef,
+): Set<string> {
+  const reachable = new Set<string>()
+  const stack: string[] = []
+
+  Object.values(branches).forEach((commitId) => {
+    if (commitId) {
+      stack.push(commitId)
+    }
+  })
+
+  if (head.commitId) {
+    stack.push(head.commitId)
+  }
+
+  while (stack.length > 0) {
+    const current = stack.pop()
+    if (!current || reachable.has(current)) {
+      continue
+    }
+
+    const commit = commits[current]
+    if (!commit) {
+      continue
+    }
+
+    reachable.add(current)
+    for (const parentId of commit.parents) {
+      if (parentId) {
+        stack.push(parentId)
+      }
+    }
+  }
+
+  return reachable
+}
+
 export function Graph({ commits, branches, head, lanes }: GraphProps) {
   const nodes = Object.values(commits).sort((a, b) => commitOrderKey(b.id) - commitOrderKey(a.id))
+  const reachableCommits = collectReachableCommits(commits, branches, head)
   const laneGap = 120
   const yGap = 66
   const sidePadding = 48
@@ -42,9 +83,14 @@ export function Graph({ commits, branches, head, lanes }: GraphProps) {
       ? Math.max(...branchEntries.map(([name]) => laneIndexByValue.get(lanes[name] ?? 0) ?? 0))
       : 0
     const width = maxLaneIndex * laneGap + sidePadding * 2 + 120
-    const svgStyle = { width: `min(100%, ${width}px)`, margin: '0 auto' }
+    const graphHeight = 'max(100%, 180px)'
     return (
-      <svg viewBox={`0 0 ${width} 180`} className="graph-canvas" style={svgStyle}>
+      <svg
+        viewBox={`0 0 ${width} 180`}
+        className="graph-canvas"
+        preserveAspectRatio="xMidYMid meet"
+        style={{ height: graphHeight, width: '100%' }}
+      >
         <text x="20" y="28" fill="#777" fontSize="14">
           No commits yet
         </text>
@@ -99,17 +145,23 @@ export function Graph({ commits, branches, head, lanes }: GraphProps) {
   const maxY = nodes.length * yGap + 60
   const maxLane = laneValues.length > 0 ? laneValues.length - 1 : 0
   const width = maxLane * laneGap + sidePadding * 2 + 170
-  const svgStyle = { width: `min(100%, ${width}px)`, margin: '0 auto' }
 
   const branchEntries = Object.entries(branches)
 
   return (
-    <svg viewBox={`0 0 ${width} ${maxY}`} className="graph-canvas" style={svgStyle}>
+    <svg
+      viewBox={`0 0 ${width} ${maxY}`}
+      className="graph-canvas"
+      preserveAspectRatio="xMidYMid meet"
+      style={{ height: `max(100%, ${maxY}px)`, width: '100%' }}
+    >
       {nodes.map((commit) => {
         const point = positions.get(commit.id)
         if (!point) {
           return null
         }
+
+        const isReachable = reachableCommits.has(commit.id)
 
         return commit.parents.map((parentId) => {
           const parentPoint = positions.get(parentId)
@@ -126,9 +178,10 @@ export function Graph({ commits, branches, head, lanes }: GraphProps) {
               <path
                 key={`${commit.id}-edge-${parentId}`}
                 d={`M ${point.x} ${fromY} V ${toY}`}
-                stroke="#555"
+                stroke={isReachable ? '#555' : '#9ca3af'}
                 fill="none"
                 strokeWidth="2.2"
+                strokeDasharray={isReachable ? undefined : '6 4'}
               />
             )
           }
@@ -137,9 +190,10 @@ export function Graph({ commits, branches, head, lanes }: GraphProps) {
             <path
               key={`${commit.id}-edge-${parentId}`}
               d={`M ${point.x} ${fromY} Q ${point.x} ${curveMidY}, ${(point.x + parentPoint.x) / 2} ${curveMidY} T ${parentPoint.x} ${toY}`}
-              stroke="#555"
+              stroke={isReachable ? '#555' : '#9ca3af'}
               fill="none"
               strokeWidth="2.2"
+              strokeDasharray={isReachable ? undefined : '6 4'}
             />
           )
         })
@@ -150,16 +204,49 @@ export function Graph({ commits, branches, head, lanes }: GraphProps) {
         if (!point) {
           return null
         }
+        const isReachable = reachableCommits.has(commit.id)
+        const nodeFill = isReachable ? '#3b82f6' : '#9ca3af'
+        const nodeStroke = isReachable ? '#2563eb' : '#6b7280'
+        const badgeText = isReachable ? null : 'dangling'
 
         return (
           <g key={commit.id}>
-            <circle cx={point.x} cy={point.y} r="18" fill="#3b82f6" />
+            <circle
+              cx={point.x}
+              cy={point.y}
+              r="18"
+              fill={nodeFill}
+              stroke={nodeStroke}
+              strokeWidth="2.5"
+              strokeDasharray={isReachable ? undefined : '6 4'}
+            />
             <text x={point.x} y={point.y + 6} textAnchor="middle" fill="#fff" fontSize="14">
               {commit.id}
             </text>
             <text x={point.x - 30} y={point.y - 28} fill="#444" fontSize="13">
               {commit.message}
             </text>
+            {badgeText ? (
+              <g>
+                <rect
+                  x={point.x - 30}
+                  y={point.y + 18}
+                  width="60"
+                  height="16"
+                  rx="8"
+                  fill="#4b5563"
+                />
+                <text
+                  x={point.x}
+                  y={point.y + 30}
+                  fill="#f9fafb"
+                  textAnchor="middle"
+                  fontSize="10"
+                >
+                  {badgeText}
+                </text>
+              </g>
+            ) : null}
           </g>
         )
       })}

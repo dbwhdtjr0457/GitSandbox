@@ -5,6 +5,8 @@ type ParsedCommand =
   | { kind: 'switch', name: string }
   | { kind: 'switchCreate', name: string }
   | { kind: 'merge', name: string }
+  | { kind: 'revert', commitId: string }
+  | { kind: 'resetHard', commitId: string }
   | { kind: 'checkout', refType: 'branch'; name: string }
   | { kind: 'checkout', refType: 'commit'; commitId: string }
   | { kind: 'status' }
@@ -76,6 +78,8 @@ export function parseCommand(line: string): ParsedCommand {
   // git switch main
   // git switch -c feat/api
   // git merge main
+  // git revert c1
+  // git reset --hard c1
   // git checkout main
   // git checkout c1
   // help
@@ -118,6 +122,30 @@ export function parseCommand(line: string): ParsedCommand {
 
   if (tokens[1] === 'merge' && tokens.length === 3) {
     return { kind: 'merge', name: tokens[2] }
+  }
+
+  if (tokens[1] === 'revert' && tokens.length === 3) {
+    const commitId = tokens[2]
+    if (!/^c\d+$/.test(commitId)) {
+      return { kind: 'error', message: 'Invalid revert command. Usage: git revert <commitId>' }
+    }
+    return { kind: 'revert', commitId }
+  }
+
+  if (tokens[1] === 'reset' && tokens.length === 4) {
+    if (tokens[2] !== '--hard') {
+      return {
+        kind: 'error',
+        message: 'Invalid reset command. Usage: git reset --hard <commitId>',
+      }
+    }
+
+    const commitId = tokens[3]
+    if (!/^c\d+$/.test(commitId)) {
+      return { kind: 'error', message: 'Invalid commit id. Usage: git reset --hard <commitId>' }
+    }
+
+    return { kind: 'resetHard', commitId }
   }
 
   if (tokens[1] === 'status' && tokens.length === 2) {
