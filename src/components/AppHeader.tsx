@@ -17,7 +17,7 @@ export function AppHeader({ initialized, head, onLogState, onReset }: AppHeaderP
       </div>
       <div className="app-header-actions">
         <button type="button" className="app-log-button" onClick={onLogState}>
-          Dump State
+          Log State
         </button>
         <button type="button" className="app-reset-button" onClick={onReset}>
           Reset
