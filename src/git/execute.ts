@@ -16,13 +16,17 @@ export function isAncestor(
     return ancestor === descendant
   }
 
-  let current = descendant
-  while (current) {
+  let current: string | null = descendant
+  while (current !== null) {
     if (current === ancestor) {
       return true
     }
-    const node = commits[current]
-    current = node?.parentId ?? null
+    const node: Commit | undefined = commits[current]
+    if (!node) {
+      return false
+    }
+
+    current = node.parentId
   }
 
   return false

@@ -8,7 +8,7 @@ type ParsedCommand =
   | { kind: 'help' }
   | { kind: 'error', message: string }
 
-function tokenize(line: string): ParsedCommand | string[] {
+function tokenize(line: string): { kind: 'error'; message: string } | string[] {
   const tokens: string[] = []
   let current = ''
   let quote: '"' | "'" | null = null
@@ -59,7 +59,7 @@ export function parseCommand(line: string): ParsedCommand {
   }
 
   const tokenized = tokenize(trimmed)
-  if ('kind' in tokenized && tokenized.kind === 'error') {
+  if (!Array.isArray(tokenized)) {
     return tokenized
   }
   const tokens = tokenized

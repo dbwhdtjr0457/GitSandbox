@@ -109,42 +109,52 @@ function App() {
   }
 
   return (
-    <div className="layout">
-      <section className="panel graph-panel">
-        <Graph
-          commits={state.commits}
-          branches={state.branches}
-          head={state.head}
-          lanes={state.meta.lanes}
-        />
-      </section>
+    <div className="app-shell">
+      <header className="app-header">
+        <div className="app-header-title">Git Sandbox</div>
+        <div className="app-header-sub">
+          {state.meta.initialized ? 'Initialized' : 'Not initialized'} /
+          {' '}
+          HEAD: {state.head.branch ?? 'detached'}
+          {state.head.commitId ? ` (${state.head.commitId})` : ''}
+        </div>
+      </header>
 
-      <section className="panel right-panel">
-        <div className="sub-panel editor-panel">
-          <Editor
-            value={state.editorText}
-            onChange={(value) =>
-              dispatch({ type: GitActionType.EditorSetText, payload: value })
-            }
+      <div className="layout">
+        <section className="panel graph-panel">
+          <Graph
+            commits={state.commits}
+            branches={state.branches}
+            head={state.head}
+            lanes={state.meta.lanes}
           />
-        </div>
-        <div className="sub-panel">
-          <Terminal
-            input={state.terminal.input}
-            history={state.terminal.history}
-            onInputChange={(value) =>
-              {
-                dispatch({ type: GitActionType.SetTerminalInput, payload: value })
-                dispatch({ type: GitActionType.SetTerminalHistoryCursor, payload: null })
-                dispatch({ type: GitActionType.SetTerminalDraftInput, payload: value })
+        </section>
+
+        <section className="panel right-panel">
+          <div className="sub-panel editor-panel">
+            <Editor
+              value={state.editorText}
+              onChange={(value) =>
+                dispatch({ type: GitActionType.EditorSetText, payload: value })
               }
-            }
-            onSubmit={handleTerminalSubmit}
-            onHistoryUp={handleTerminalHistoryUp}
-            onHistoryDown={handleTerminalHistoryDown}
-          />
-        </div>
-      </section>
+            />
+          </div>
+          <div className="sub-panel">
+            <Terminal
+              input={state.terminal.input}
+              history={state.terminal.history}
+              onInputChange={(value) => {
+                  dispatch({ type: GitActionType.SetTerminalInput, payload: value })
+                  dispatch({ type: GitActionType.SetTerminalHistoryCursor, payload: null })
+                  dispatch({ type: GitActionType.SetTerminalDraftInput, payload: value })
+                }}
+              onSubmit={handleTerminalSubmit}
+              onHistoryUp={handleTerminalHistoryUp}
+              onHistoryDown={handleTerminalHistoryDown}
+            />
+          </div>
+        </section>
+      </div>
     </div>
   )
 }
