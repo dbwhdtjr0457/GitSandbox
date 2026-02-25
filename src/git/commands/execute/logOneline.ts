@@ -1,20 +1,19 @@
 import type { GitState } from '../../types'
 import type { ExecutionResult } from './executeUtils'
+import { logSummaryLine, messages } from '../../messages'
+import { requireInitialized } from '../../guards'
 
 export function executeLogOneline(state: GitState): ExecutionResult {
-  if (!state.meta.initialized) {
-    return {
-      nextState: state,
-      out: '',
-      err: 'fatal: not a git repository (or any of the parent directories): .git',
-    }
+  const initError = requireInitialized(state)
+  if (initError) {
+    return initError
   }
 
   const headCommitId = state.head.commitId
   if (!headCommitId) {
     return {
       nextState: state,
-      out: 'No commits yet',
+      out: messages.output.noCommitsYet(),
     }
   }
 
@@ -25,14 +24,14 @@ export function executeLogOneline(state: GitState): ExecutionResult {
     if (!commit) {
       break
     }
-    lines.push(`${commit.id} ${commit.message}`)
+    lines.push(logSummaryLine(commit))
     currentId = commit.parents[0] ?? null
   }
 
   if (lines.length === 0) {
     return {
       nextState: state,
-      out: 'No commits yet',
+      out: messages.output.noCommitsYet(),
     }
   }
 

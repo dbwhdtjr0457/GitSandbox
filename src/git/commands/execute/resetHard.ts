@@ -1,22 +1,18 @@
 import type { GitState } from '../../types'
 import type { ExecutionResult } from './executeUtils'
-import { getSnapshotByCommitId, hasOwn } from './executeUtils'
+import { getSnapshotByCommitId } from './executeUtils'
+import { messages } from '../../messages'
+import { requireCommitExists, requireInitialized } from '../../guards'
 
 export function executeResetHard(state: GitState, commitId: string): ExecutionResult {
-  if (!state.meta.initialized) {
-    return {
-      nextState: state,
-      out: '',
-      err: 'fatal: not a git repository (or any of the parent directories): .git',
-    }
+  const initError = requireInitialized(state)
+  if (initError) {
+    return initError
   }
 
-  if (!hasOwn(state.commits, commitId)) {
-    return {
-      nextState: state,
-      out: '',
-      err: `fatal: bad revision '${commitId}'`,
-    }
+  const commitError = requireCommitExists(state, commitId)
+  if (commitError) {
+    return commitError
   }
 
   const nextEditorText = getSnapshotByCommitId(commitId, state.commits)
@@ -35,7 +31,7 @@ export function executeResetHard(state: GitState, commitId: string): ExecutionRe
         },
         editorText: nextEditorText,
       },
-      out: `HEAD is now at ${commitId}`,
+      out: messages.output.headNowAt(commitId),
     }
   }
 
@@ -48,6 +44,6 @@ export function executeResetHard(state: GitState, commitId: string): ExecutionRe
       },
       editorText: nextEditorText,
     },
-    out: `HEAD is now at ${commitId}`,
+    out: messages.output.headNowAt(commitId),
   }
 }

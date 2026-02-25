@@ -1,27 +1,26 @@
 import { findLCA, isAncestor } from '../../utils'
 import type { Commit, GitState } from '../../types'
 import type { ExecutionResult } from './executeUtils'
-import { createCommitId, getLaneByName, ensureRepoInitialized } from './executeUtils'
+import { createCommitId, getLaneByName } from './executeUtils'
+import { messages } from '../../messages'
+import { requireInitialized, requireSymbolicHead } from '../../guards'
 
 export function executeMerge(state: GitState, branchName: string): ExecutionResult {
-  const initError = ensureRepoInitialized(state)
+  const initError = requireInitialized(state)
   if (initError) {
     return initError
   }
 
-  if (state.head.type !== 'symbolic') {
-    return {
-      nextState: state,
-      out: '',
-      err: 'fatal: cannot merge while HEAD is detached (MVP not supported)',
-    }
+  const symbolicError = requireSymbolicHead(state)
+  if (symbolicError) {
+    return symbolicError
   }
 
-  if (!(branchName in state.branches)) {
+  if (!Object.prototype.hasOwnProperty.call(state.branches, branchName)) {
     return {
       nextState: state,
       out: '',
-      err: `fatal: invalid refspec '${branchName}'`,
+      err: messages.error.commitRequiredForMerge(branchName),
     }
   }
 
@@ -31,7 +30,7 @@ export function executeMerge(state: GitState, branchName: string): ExecutionResu
   if (currentCommitId === targetCommitId) {
     return {
       nextState: state,
-      out: 'Already up to date',
+      out: messages.output.mergeAlreadyUpToDate(),
     }
   }
 
@@ -49,11 +48,11 @@ export function executeMerge(state: GitState, branchName: string): ExecutionResu
         },
         editorText: targetCommitId ? state.commits[targetCommitId]?.snapshot ?? '' : state.editorText,
       },
-      out: 'Fast-forward',
+      out: messages.output.mergeFastForward(),
     }
   }
 
-  void findLCA(state.commits, currentCommitId, targetCommitId)
+  const baseId = findLCA(state.commits, currentCommitId, targetCommitId)
 
   const mergeCommitId = createCommitId(state)
   const mergeCommit: Commit = {
@@ -64,6 +63,7 @@ export function executeMerge(state: GitState, branchName: string): ExecutionResu
     lane: getLaneByName(state, state.head.branch),
     snapshot: state.editorText,
     timestamp: Date.now(),
+    mergeBase: baseId,
   }
 
   return {
@@ -86,6 +86,6 @@ export function executeMerge(state: GitState, branchName: string): ExecutionResu
         nextId: state.meta.nextId + 1,
       },
     },
-    out: "Merge made by the 'ort' strategy.",
+    out: messages.output.mergeMadeByOrt(),
   }
 }

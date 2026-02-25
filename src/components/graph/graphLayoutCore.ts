@@ -20,7 +20,15 @@ export function buildGraphData(
   head: HeadRef,
 ): GraphLayoutData {
   const nodes = Object.values(commits).sort(
-    (a, b) => getCommitOrderKey(b.id) - getCommitOrderKey(a.id),
+    (a, b) => {
+      const aKey = getCommitOrderKey(a)
+      const bKey = getCommitOrderKey(b)
+      if (aKey.timestamp === bKey.timestamp) {
+        return bKey.fallback - aKey.fallback
+      }
+
+      return bKey.timestamp - aKey.timestamp
+    },
   )
   const branchEntries = Object.entries(branches)
   const latestCommitId = nodes.length > 0 ? nodes[0].id : null

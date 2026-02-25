@@ -1,14 +1,13 @@
 import { createCommitId, getLaneByName } from './executeUtils'
 import type { ExecutionResult } from './executeUtils'
 import type { Commit, GitState } from '../../types'
+import { messages } from '../../messages'
+import { requireInitialized } from '../../guards'
 
 export function executeCommit(state: GitState, message: string): ExecutionResult {
-  if (!state.meta.initialized) {
-    return {
-      nextState: state,
-      out: '',
-      err: 'fatal: not a git repository (or any of the parent directories): .git',
-    }
+  const initError = requireInitialized(state)
+  if (initError) {
+    return initError
   }
 
   const commitId = createCommitId(state)
@@ -57,6 +56,6 @@ export function executeCommit(state: GitState, message: string): ExecutionResult
         nextId: state.meta.nextId + 1,
       },
     },
-    out: `Created commit ${commitId}`,
+    out: messages.output.createdCommit(commitId),
   }
 }

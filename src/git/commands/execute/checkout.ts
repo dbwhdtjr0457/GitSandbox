@@ -1,27 +1,23 @@
 import type { GitState } from '../../types'
 import type { ExecutionResult } from './executeUtils'
 import type { ParsedCommand } from '../../parse/types'
-import { getSnapshotByCommitId, hasOwn } from './executeUtils'
+import { getSnapshotByCommitId } from './executeUtils'
+import { messages } from '../../messages'
+import { requireBranchExists, requireCommitExists, requireInitialized } from '../../guards'
 
 export function executeCheckout(
   state: GitState,
   cmd: Extract<ParsedCommand, { kind: 'checkout' }>,
 ): ExecutionResult {
-  if (!state.meta.initialized) {
-    return {
-      nextState: state,
-      out: '',
-      err: 'fatal: not a git repository (or any of the parent directories): .git',
-    }
+  const initError = requireInitialized(state)
+  if (initError) {
+    return initError
   }
 
   if (cmd.refType === 'branch') {
-    if (!hasOwn(state.branches, cmd.name)) {
-      return {
-        nextState: state,
-        out: '',
-        err: `error: pathspec '${cmd.name}' did not match any branch`,
-      }
+    const branchError = requireBranchExists(state, cmd.name)
+    if (branchError) {
+      return branchError
     }
 
     const commitId = state.branches[cmd.name]
@@ -35,16 +31,13 @@ export function executeCheckout(
         },
         editorText: getSnapshotByCommitId(commitId, state.commits),
       },
-      out: `Switched to branch '${cmd.name}'`,
+      out: messages.output.switchedBranch(cmd.name),
     }
   }
 
-  if (!hasOwn(state.commits, cmd.commitId)) {
-    return {
-      nextState: state,
-      out: '',
-      err: `fatal: bad revision '${cmd.commitId}'`,
-    }
+  const commitError = requireCommitExists(state, cmd.commitId)
+  if (commitError) {
+    return commitError
   }
 
   return {
@@ -56,6 +49,6 @@ export function executeCheckout(
       },
       editorText: getSnapshotByCommitId(cmd.commitId, state.commits),
     },
-    out: `HEAD is now at ${cmd.commitId}`,
+    out: messages.output.headNowAt(cmd.commitId),
   }
 }

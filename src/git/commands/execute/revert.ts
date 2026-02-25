@@ -1,29 +1,26 @@
 import type { Commit, GitState } from '../../types'
 import type { ExecutionResult } from './executeUtils'
 import { createCommitId, getLaneByName } from './executeUtils'
+import { messages } from '../../messages'
+import { describeCommitForRevert } from '../../messages'
+import { requireCommitExists, requireInitialized } from '../../guards'
 
 export function executeRevert(state: GitState, commitId: string): ExecutionResult {
-  if (!state.meta.initialized) {
-    return {
-      nextState: state,
-      out: '',
-      err: 'fatal: not a git repository (or any of the parent directories): .git',
-    }
+  const initError = requireInitialized(state)
+  if (initError) {
+    return initError
+  }
+
+  const commitError = requireCommitExists(state, commitId)
+  if (commitError) {
+    return commitError
   }
 
   const targetCommit = state.commits[commitId]
-  if (!targetCommit) {
-    return {
-      nextState: state,
-      out: '',
-      err: `fatal: bad revision '${commitId}'`,
-    }
-  }
-
   const nextCommitId = createCommitId(state)
   const revertCommit: Commit = {
     id: nextCommitId,
-    message: `Revert "${targetCommit.message}"`,
+    message: describeCommitForRevert(targetCommit),
     parents: state.head.commitId ? [state.head.commitId] : [],
     branch: state.head.type === 'symbolic' ? state.head.branch : null,
     lane: state.head.type === 'symbolic' ? getLaneByName(state, state.head.branch) : 0,
@@ -52,7 +49,7 @@ export function executeRevert(state: GitState, commitId: string): ExecutionResul
           nextId: state.meta.nextId + 1,
         },
       },
-      out: `Reverted ${commitId}.`,
+      out: messages.output.reverted(commitId),
     }
   }
 
@@ -72,6 +69,6 @@ export function executeRevert(state: GitState, commitId: string): ExecutionResul
         nextId: state.meta.nextId + 1,
       },
     },
-    out: `Reverted ${commitId}.`,
+    out: messages.output.reverted(commitId),
   }
 }

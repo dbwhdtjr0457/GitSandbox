@@ -1,14 +1,13 @@
 import type { GitState } from '../../types'
 import type { ExecutionResult } from './executeUtils'
-import { getSnapshotByCommitId, hasOwn } from './executeUtils'
+import { getSnapshotByCommitId } from './executeUtils'
+import { messages } from '../../messages'
+import { requireBranchExists } from '../../guards'
 
 export function executeSwitch(state: GitState, branchName: string): ExecutionResult {
-  if (!hasOwn(state.branches, branchName)) {
-    return {
-      nextState: state,
-      out: '',
-      err: `error: pathspec '${branchName}' did not match any branch`,
-    }
+  const branchError = requireBranchExists(state, branchName)
+  if (branchError) {
+    return branchError
   }
 
   const commitId = state.branches[branchName]
@@ -23,6 +22,6 @@ export function executeSwitch(state: GitState, branchName: string): ExecutionRes
       },
       editorText: getSnapshotByCommitId(commitId, state.commits),
     },
-    out: `Switched to branch '${branchName}'`,
+    out: messages.output.switchedBranch(branchName),
   }
 }

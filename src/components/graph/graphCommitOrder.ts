@@ -1,8 +1,22 @@
 import type { Commit } from '../../git/types'
 
-export function getCommitOrderKey(id: string): number {
-  const numeric = Number(id.replace(/^c/, ''))
-  return Number.isNaN(numeric) ? 0 : numeric
+function getCommitNumberFromId(id: string): number {
+  const match = /^c(\d+)$/.exec(id)
+  if (!match) {
+    return -1
+  }
+
+  const numeric = Number(match[1])
+  return Number.isNaN(numeric) ? -1 : numeric
+}
+
+export function getCommitOrderKey(commit: Commit): { timestamp: number; fallback: number } {
+  const ts = Number(commit.timestamp)
+  const timestamp = Number.isFinite(ts) ? ts : Number.NEGATIVE_INFINITY
+  return {
+    timestamp,
+    fallback: getCommitNumberFromId(commit.id),
+  }
 }
 
 export function getLaneMeta(lanes: Record<string, number>, nodes: Commit[]) {

@@ -1,13 +1,14 @@
 import type { GitState } from '../../types'
 import type { ExecutionResult } from './executeUtils'
 import { getSnapshotByCommitId, hasOwn } from './executeUtils'
+import { messages } from '../../messages'
+import { requireInitialized } from '../../guards'
 
 export function executeBranch(state: GitState, branchName: string, shouldSwitch: boolean): ExecutionResult {
-  if (shouldSwitch && !state.meta.initialized) {
-    return {
-      nextState: state,
-      out: '',
-      err: 'fatal: not a git repository (or any of the parent directories): .git',
+  if (shouldSwitch) {
+    const initError = requireInitialized(state)
+    if (initError) {
+      return initError
     }
   }
 
@@ -15,7 +16,7 @@ export function executeBranch(state: GitState, branchName: string, shouldSwitch:
     return {
       nextState: state,
       out: '',
-      err: `fatal: A branch named '${branchName}' already exists.`,
+      err: messages.error.branchExists(branchName),
     }
   }
 
@@ -41,7 +42,7 @@ export function executeBranch(state: GitState, branchName: string, shouldSwitch:
   if (!shouldSwitch) {
     return {
       nextState,
-      out: `Created branch ${branchName}`,
+      out: messages.output.createdBranch(branchName),
     }
   }
 
@@ -55,6 +56,6 @@ export function executeBranch(state: GitState, branchName: string, shouldSwitch:
       },
       editorText: getSnapshotByCommitId(state.head.commitId, state.commits),
     },
-    out: `Created and switched to new branch '${branchName}'`,
+    out: messages.output.switchNewBranch(branchName),
   }
 }

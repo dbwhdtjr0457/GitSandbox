@@ -6,6 +6,7 @@ export type Commit = {
   lane: number
   snapshot: string
   timestamp: number
+  mergeBase?: string | null
 }
 
 export type HeadRef =

@@ -1,5 +1,6 @@
 import type { GitState } from '../../types'
 import type { ExecutionResult } from './executeUtils'
+import { messages } from '../../messages'
 
 export function executeInit(state: GitState): ExecutionResult {
   const nextState: GitState = {
@@ -29,12 +30,12 @@ export function executeInit(state: GitState): ExecutionResult {
   if (state.meta.initialized) {
     return {
       nextState,
-      out: 'Reinitialized existing Git repository',
+      out: messages.output.reinitialized(),
     }
   }
 
   return {
     nextState,
-    out: 'Initialized empty Git sandbox repository.',
+    out: messages.output.initialized(),
   }
 }

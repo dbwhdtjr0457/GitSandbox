@@ -84,8 +84,12 @@ export function isAncestor(
   descendant: string | null,
   commits: Record<string, Commit>,
 ): boolean {
-  if (ancestor === null || descendant === null) {
-    return ancestor === descendant
+  if (ancestor === null) {
+    return true
+  }
+
+  if (descendant === null) {
+    return false
   }
 
   const ancestors = collectAncestors(commits, descendant)
