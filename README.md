@@ -1,37 +1,20 @@
-# Git Sandbox Terminal
+# Git Sandbox
 
-Vite + React + TypeScript 기반 Git 교육용 샌드박스입니다.  
-왼쪽은 Git 커밋 그래프(SVG), 오른쪽은 에디터/터미널로 구성되어 있어 한 화면에서 상태 변화를 확인할 수 있습니다.
+Git 동작을 브라우저에서 시각적으로 학습할 수 있는 `Vite + React + TypeScript` 기반 샌드박스입니다.
 
-배포: https://joyoo-blog.com/
+왼쪽에는 커밋 그래프, 오른쪽에는 에디터와 터미널을 배치해 `branch`, `switch`, `checkout`, `merge`, `revert`, `reset` 같은 흐름을 한 화면에서 확인할 수 있습니다. 머지 충돌이 발생하면 `ConflictResolver` UI로 `OURS / THEIRS / RESULT`를 비교하고 해결할 수 있습니다.
 
----
+## 주요 기능
 
-## 개요
-
-- 지원 명령어를 직접 입력해 시나리오 기반으로 Git 동작을 관찰할 수 있습니다.
-- 에디터 입력 내용은 `editorText`로 저장되어 커밋 스냅샷에 반영됩니다.
-- 브랜치 이동/체크아웃/리셋 시 해당 커밋 스냅샷으로 에디터가 즉시 갱신됩니다.
-- 명령어 실행은 멀티라인 입력 기준으로 1초 간격 순차 처리되어 출력 변화를 쉽게 추적할 수 있습니다.
-- 데모 시나리오(튜토리얼 모달 + 데모 카탈로그)로 초보자 진입 장벽을 줄였습니다.
-- 기본 UI 언어는 한국어이며, 헤더에서 영어로 전환 가능합니다.
-
----
-
-## 실행 방법
-
-```bash
-npm install
-npm run dev
-```
-
-- 개발 서버: `http://localhost:5173`
-- 빌드: `npm run build`
-- 타입 검사: `npx tsc --noEmit`
-- 포맷: `npm run format`
-- 포맷 체크: `npm run format:check`
-
----
+- Git 학습용 단일 화면 UI
+- 커밋 DAG와 브랜치 포인터 시각화
+- Monaco 기반 에디터
+- 터미널 명령 실행과 히스토리 탐색
+- `ko / en` 로케일 전환 및 저장
+- 튜토리얼 모달과 데모 시나리오 카탈로그
+- 머지 충돌 해결 UI
+- `git merge --abort` 지원
+- Vitest + Testing Library + Playwright 테스트 구성
 
 ## 지원 명령어
 
@@ -43,116 +26,136 @@ npm run dev
 - `git switch -c <name>`
 - `git checkout <branch|commitId>`
 - `git merge <name>`
+- `git merge --abort`
 - `git revert <commitId>`
 - `git reset --hard <commitId>`
 - `git status`
 - `git log --oneline`
 
-> `help` 출력은 현재 지원 명령어 목록을 바로 확인할 수 있습니다.
-
----
-
-## 동작 규칙 요약
+## 현재 구현 동작
 
 - `git init`
-  - 레포를 초기화하고 `main` 브랜치를 생성합니다.
-  - `branches.main = null`, `head.type = symbolic`
+  - `main` 브랜치와 symbolic `HEAD`를 생성합니다.
 - `git commit -m`
-  - 현재 HEAD 스냅샷을 커밋 메시지와 함께 저장
-  - `parents` 배열 기반 DAG로 이력 유지
+  - 현재 `editorText`를 스냅샷으로 저장합니다.
 - `git branch`
-  - 현재 HEAD 기준 새 브랜치 생성
-  - 브랜치가 커밋 없는 경우 `unborn`(tip `null`) 상태로 유지
-- `git switch`
-  - 브랜치 이동만 수행 (`symbolic` HEAD)
-- `git checkout`
-  - 브랜치명: 브랜치로 이동
-  - 커밋ID: detached HEAD로 이동
+  - 현재 `HEAD` 기준으로 브랜치를 생성합니다.
+- `git switch` / `git checkout`
+  - 브랜치 이동 또는 detached `HEAD` 이동을 지원합니다.
 - `git merge`
-  - `detached HEAD`에서는 merge 미지원
-- `merge` 결과
-  - Fast-forward 또는 non-FF 3-way merge commit 생성
-  - 충돌은 현재 자동 해결 정책 없이 진행 상태만 노출(향후 확장 예정)
-- `git revert`
-  - 대상 커밋을 되돌린 새 커밋 생성
-- `git reset --hard`
-  - 지정 커밋으로 브랜치/HEAD 포인터 이동 + 에디터 스냅샷 복원
+  - fast-forward, non-fast-forward merge commit, conflict 흐름을 처리합니다.
+  - 충돌 시 즉시 merge commit을 만들지 않고, 충돌 해결 후 `git commit`으로 머지 완료합니다.
+- `git merge --abort`
+  - 진행 중인 merge conflict 상태를 제거하고 `OURS` 상태로 복구합니다.
 - `git status`
-  - symbolic/detached 기준 문자열 출력
-- `git log --oneline`
-  - first-parent 기준으로 최대 30개 출력
+  - 일반 상태와 merge 진행 상태를 구분해서 출력합니다.
 
----
+## 데모 시나리오
 
-## 주요 아키텍처
+앱에는 다음 학습 시나리오가 포함되어 있습니다.
 
+- `help`, `init`, `status`
+- 단일 커밋 / 다중 커밋
+- 브랜치 생성 / 전환 / `switch -c`
+- `checkout` 브랜치 / 커밋
+- fast-forward merge
+- non-fast-forward merge
+- merge conflict
+- `revert`
+- `reset --hard`
+- 복합 시나리오
+
+데모 실행 시 상태를 초기화한 뒤 명령을 순차적으로 재생합니다.
+
+## 실행 방법
+
+```bash
+npm install
+npm run dev
 ```
+
+- 개발 서버: `http://localhost:5173`
+- 프로덕션 빌드: `npm run build`
+- 린트: `npm run lint`
+- 포맷: `npm run format`
+
+## 테스트
+
+```bash
+npm run test
+npm run test:e2e
+npm run test:all
+```
+
+- `npm run test`
+  - Vitest 기반 unit / integration 테스트
+- `npm run test:e2e`
+  - Playwright 기반 브라우저 E2E 테스트
+- `npm run test:all`
+  - unit/integration + E2E 전체 실행
+
+Playwright를 처음 실행하는 환경이라면 브라우저 설치가 필요할 수 있습니다.
+
+```bash
+npx playwright install chromium
+```
+
+## 테스트 범위
+
+- Git 파서와 실행 로직
+- reducer와 command runner
+- terminal history / scroll 동작
+- App 통합 흐름
+- merge conflict 해결 UI
+- 모달 접근성
+- 긴 터미널 로그에서의 레이아웃 회귀
+
+## 기술 스택
+
+- React 19
+- TypeScript
+- Vite
+- Mantine
+- Monaco Editor
+- Vitest
+- Testing Library
+- Playwright
+
+## 프로젝트 구조
+
+```text
 src/
-  App.tsx, main.tsx, App.css
   app/
-    terminalSubmitHandlers.ts
+    commandSequence.ts
     terminalHistoryHandlers.ts
+    terminalSubmitHandlers.ts
   components/
+    AppDemoCatalogModal.tsx
     AppHeader.tsx
     AppTutorialModal.tsx
-    AppDemoCatalogModal.tsx
+    ConflictResolver.tsx
     Editor.tsx
+    Graph.tsx
     MonacoEditor.tsx
     Terminal.tsx
-    Graph.tsx
-    ConflictResolver.tsx
     graph/
-      GraphCanvas*.tsx
   git/
-    types.ts
-    reducer.ts
+    commands/execute/
     parse/
-      parseCommand.ts
-      tokenize.ts
-      types.ts
+    reducer/
+    types.ts
     execute.ts
-    commands/execute/*
     guards.ts
     messages.ts
     utils.ts
+  test/
+    renderWithProviders.tsx
+    setup.tsx
+e2e/
+  app.spec.ts
 ```
 
----
+## 비고
 
-## 리팩터링(최근 반영)
-
-- Monaco 에디터 정합성 완료
-  - `@monaco-editor/react`, `monaco-editor` 중심으로 정리
-- CodeMirror 관련 의존성 제거 완료
-- Prettier 도입 및 일괄 포맷 적용
-- `unborn` 브랜치(`null tip`) 처리 규칙 정리
-- `merge` 가드/에러 메시지 정리
-- 그래프 정렬 기준을 `timestamp` 우선(동률 시 `cN`, 이후 문자열 fallback)으로 안정화
-- locale(한/영) 분기 및 튜토리얼/데모 연동 정합성 강화
-
----
-
-## 대표 시나리오 (10줄 내외)
-
-```text
-git init
-git commit -m "init"
-git commit -m "main: bootstrap project"
-git branch feat
-git switch feat
-git commit -m "feat: add editor"
-git commit -m "feat: add toolbar"
-git switch main
-git merge feat
-git status
-git log --oneline
-```
-
-`merge`에서 분기 병합 흐름과 그래프/에디터/터미널 동기화를 한 번에 확인할 수 있습니다.
-
----
-
-## 참고
-
-- 데모는 `AppDemoCatalogModal`에서 실행할 수 있으며, 실행 전 상태를 초기화한 뒤 순차 실행합니다.
-- 충돌 해결 UI는 `ConflictResolver`(OURS / THEIRS / RESULT)로 구성되어 있으며, 향후 실제 충돌 병합 정책을 확장할 수 있는 기반을 제공합니다.
+- 이 프로젝트는 실제 Git을 완전히 복제하는 것이 아니라, 학습용으로 핵심 개념을 시각화하는 데 초점을 둡니다.
+- 최근 머지 충돌 흐름은 실제 Git에 더 가깝게 조정되어, 충돌 중 명령 제한과 `merge --abort`를 지원합니다.
