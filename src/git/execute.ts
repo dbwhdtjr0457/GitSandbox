@@ -9,6 +9,7 @@ import { executeHelp } from './commands/execute/help'
 import { executeInit } from './commands/execute/init'
 import { executeLogOneline } from './commands/execute/logOneline'
 import { executeMerge } from './commands/execute/merge'
+import { executeMergeAbort } from './commands/execute/mergeAbort'
 import { executeRevert } from './commands/execute/revert'
 import { executeResetHard } from './commands/execute/resetHard'
 import { executeStatus } from './commands/execute/status'
@@ -34,6 +35,8 @@ export function executeCommand(state: GitState, cmd: CommandAst): ExecutionResul
       return executeCheckout(state, cmd)
     case 'merge':
       return executeMerge(state, cmd.name)
+    case 'mergeAbort':
+      return executeMergeAbort(state)
     case 'revert':
       return executeRevert(state, cmd.commitId)
     case 'resetHard':

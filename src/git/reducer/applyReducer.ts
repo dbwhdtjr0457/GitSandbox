@@ -4,11 +4,14 @@ import { GitActionType, type GitAction } from './actionTypes'
 export function reducer(state: GitState, action: GitAction): GitState {
   switch (action.type) {
     case GitActionType.Initialize:
+    case GitActionType.ApplyExecutionFrame:
       return action.payload
     case GitActionType.SetHead:
       return { ...state, head: action.payload }
     case GitActionType.EditorSetText:
       return { ...state, editorText: action.payload }
+    case GitActionType.SetTerminalState:
+      return { ...state, terminal: { ...state.terminal, ...action.payload } }
     case GitActionType.SetTerminalInput:
       return { ...state, terminal: { ...state.terminal, input: action.payload } }
     case GitActionType.SetTerminalDraftInput:

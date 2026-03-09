@@ -54,8 +54,14 @@ export function parseCommand(line: string): ParsedCommand {
     }
   }
 
-  if (command === 'merge' && args.length === 1) {
-    return { kind: 'merge', name: args[0] }
+  if (command === 'merge') {
+    if (args.length === 1 && args[0] === '--abort') {
+      return { kind: 'mergeAbort' }
+    }
+    if (args.length === 1) {
+      return { kind: 'merge', name: args[0] }
+    }
+    return { kind: 'error', message: 'Invalid merge command. Usage: git merge <name> | git merge --abort' }
   }
 
   if (command === 'revert' && args.length === 1) {

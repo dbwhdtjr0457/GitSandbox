@@ -12,16 +12,26 @@ export function createHistoryUpHandler(state: GitState, dispatch: Dispatch<GitAc
 
     if (state.terminal.historyCursor === null) {
       const lastIndex = history.length - 1
-      dispatch({ type: GitActionType.SetTerminalDraftInput, payload: state.terminal.input })
-      dispatch({ type: GitActionType.SetTerminalHistoryCursor, payload: lastIndex })
-      dispatch({ type: GitActionType.SetTerminalInput, payload: history[lastIndex].cmd })
+      dispatch({
+        type: GitActionType.SetTerminalState,
+        payload: {
+          draftInput: state.terminal.input,
+          historyCursor: lastIndex,
+          input: history[lastIndex].cmd,
+        },
+      })
       return
     }
 
     if (state.terminal.historyCursor > 0) {
       const nextCursor = state.terminal.historyCursor - 1
-      dispatch({ type: GitActionType.SetTerminalHistoryCursor, payload: nextCursor })
-      dispatch({ type: GitActionType.SetTerminalInput, payload: history[nextCursor].cmd })
+      dispatch({
+        type: GitActionType.SetTerminalState,
+        payload: {
+          historyCursor: nextCursor,
+          input: history[nextCursor].cmd,
+        },
+      })
     }
   }
 }
@@ -38,12 +48,22 @@ export function createHistoryDownHandler(
 
     if (state.terminal.historyCursor < history.length - 1) {
       const nextCursor = state.terminal.historyCursor + 1
-      dispatch({ type: GitActionType.SetTerminalHistoryCursor, payload: nextCursor })
-      dispatch({ type: GitActionType.SetTerminalInput, payload: history[nextCursor].cmd })
+      dispatch({
+        type: GitActionType.SetTerminalState,
+        payload: {
+          historyCursor: nextCursor,
+          input: history[nextCursor].cmd,
+        },
+      })
       return
     }
 
-    dispatch({ type: GitActionType.SetTerminalHistoryCursor, payload: null })
-    dispatch({ type: GitActionType.SetTerminalInput, payload: state.terminal.draftInput })
+    dispatch({
+      type: GitActionType.SetTerminalState,
+      payload: {
+        historyCursor: null,
+        input: state.terminal.draftInput,
+      },
+    })
   }
 }

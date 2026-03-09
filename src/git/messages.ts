@@ -16,6 +16,7 @@ export const messages = {
       'error: Merging is not possible because you have unmerged files.',
     commitNotPossibleBecauseUnmerged: () =>
       'error: Committing is not possible because you have unmerged files.',
+    noMergeToAbort: () => "fatal: There is no merge to abort (MERGE_HEAD missing).",
     unhandledCommand: () => 'Unhandled command.',
   },
   output: {
@@ -31,6 +32,7 @@ export const messages = {
     mergeAlreadyUpToDate: () => 'Already up to date',
     mergeConflictDetected: () => 'Auto-merging... CONFLICT (content)',
     mergeMadeByOrt: () => `Merge made by the 'ort' strategy.`,
+    mergeAborted: () => 'Merge aborted.',
     statusOnBranch: (branch: string, commitId: string) =>
       `On branch ${branch} + HEAD -> ${branch} (${commitId})`,
     statusHeadDetached: (id: string) => `HEAD detached at ${id}`,

@@ -15,6 +15,7 @@ export function executeHelp(state: GitState): ExecutionResult {
       '  git switch -c <name>',
       '  git checkout <branch|commit>',
       '  git merge <name>',
+      '  git merge --abort',
       '  git revert <commitId>',
       '  git reset --hard <commitId>',
       '  git status',

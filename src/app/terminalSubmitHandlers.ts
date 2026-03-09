@@ -1,98 +1,53 @@
 import type { Dispatch } from 'react'
-import { parseCommand } from '../git/parse'
-import { executeCommand } from '../git/execute'
 import type { GitAction } from '../git/reducer'
 import { GitActionType } from '../git/reducer'
 import type { GitState } from '../git/types'
-
-function sleep(ms: number) {
-  return new Promise((resolve) => {
-    setTimeout(resolve, ms)
-  })
-}
+import {
+  createCommandSteps,
+  parseTerminalLines,
+  playCommandSequence,
+  runCommandSequence,
+} from './commandSequence'
 
 export function runTerminalInput(input: string, baseState: GitState) {
-  const lines = input
-    .split(/\r?\n/)
-    .map((line) => line.trim())
-    .filter((line) => line.length > 0)
+  const lines = parseTerminalLines(input)
 
   if (lines.length === 0) {
     return { nextState: baseState, history: [...baseState.terminal.history] }
   }
 
-  let nextState = baseState
-  const nextHistory = [...baseState.terminal.history]
-  const timestamp = Date.now()
-
-  lines.forEach((line, index) => {
-    const ast = parseCommand(line)
-    const result = executeCommand(nextState, ast)
-    nextState = result.nextState
-
-    nextHistory.push({
-      id: String(timestamp + index),
-      cmd: line,
-      out: result.out,
-      err: result.err,
-      timestamp: timestamp + index,
-    })
-  })
-
-  return { nextState, history: nextHistory }
+  return runCommandSequence(baseState, createCommandSteps(lines))
 }
 
 export function createSubmitHandler(state: GitState, dispatch: Dispatch<GitAction>) {
   return () => {
     void (async () => {
-      const lines = state.terminal.input
-        .split(/\r?\n/)
-        .map((line) => line.trim())
-        .filter((line) => line.length > 0)
+      const lines = parseTerminalLines(state.terminal.input)
 
-      const now = Date.now()
-      let nextState = state
-      const nextHistory = [...state.terminal.history]
-
-      dispatch({ type: GitActionType.SetTerminalInput, payload: '' })
-      dispatch({ type: GitActionType.SetTerminalDraftInput, payload: '' })
+      dispatch({
+        type: GitActionType.SetTerminalState,
+        payload: { input: '', draftInput: '', historyCursor: null },
+      })
 
       if (lines.length === 0) {
         return
       }
 
-      for (let index = 0; index < lines.length; index += 1) {
-        const line = lines[index]
-        const ast = parseCommand(line)
-        const result = executeCommand(nextState, ast)
-        nextState = result.nextState
-
-        nextHistory.push({
-          id: String(now + index),
-          cmd: line,
-          out: result.out,
-          err: result.err,
-          timestamp: now + index,
-        })
-
-        dispatch({
-          type: GitActionType.Initialize,
-          payload: {
-            ...nextState,
-            terminal: {
-              ...nextState.terminal,
-              history: [...nextHistory],
-              historyCursor: null,
-              draftInput: '',
-              input: '',
-            },
+      await playCommandSequence({
+        baseState: {
+          ...state,
+          terminal: {
+            ...state.terminal,
+            input: '',
+            draftInput: '',
+            historyCursor: null,
           },
-        })
-
-        if (index < lines.length - 1) {
-          await sleep(1000)
-        }
-      }
+        },
+        steps: createCommandSteps(lines),
+        onStep: (nextState) => {
+          dispatch({ type: GitActionType.ApplyExecutionFrame, payload: nextState })
+        },
+      })
     })()
   }
 }
@@ -109,64 +64,37 @@ export function createRunScriptHandler(
   },
 ) {
   return async () => {
-    const lines = script
-      .split(/\r?\n/)
-      .map((line) => line.trim())
-      .filter((line) => line.length > 0)
+    const lines = parseTerminalLines(script)
 
     if (lines.length === 0) {
       options?.onFinish?.()
       return
     }
 
-    options?.onStart?.()
+    dispatch({
+      type: GitActionType.SetTerminalState,
+      payload: { input: '', draftInput: '', historyCursor: null },
+    })
 
-    try {
-      let nextState = state
-      const nextHistory = [...state.terminal.history]
-      const now = Date.now()
-
-      dispatch({ type: GitActionType.SetTerminalInput, payload: '' })
-      dispatch({ type: GitActionType.SetTerminalDraftInput, payload: '' })
-
-      for (let index = 0; index < lines.length; index += 1) {
-        const line = lines[index]
-        const ast = parseCommand(line)
-        const result = executeCommand(nextState, ast)
-        nextState = result.nextState
-
-        nextHistory.push({
-          id: String(now + index),
-          cmd: line,
-          out: result.out,
-          err: result.err,
-          timestamp: now + index,
-        })
-
-        dispatch({
-          type: GitActionType.Initialize,
-          payload: {
-            ...nextState,
-            terminal: {
-              ...nextState.terminal,
-              history: [...nextHistory],
-              historyCursor: null,
-              draftInput: '',
-              input: '',
-            },
-          },
-        })
-
-        if (index < lines.length - 1) {
-          await sleep(delayMs)
-        }
-      }
-
-      options?.onFinish?.()
-    } catch {
-      options?.onError?.()
-      options?.onFinish?.()
-    }
+    await playCommandSequence({
+      baseState: {
+        ...state,
+        terminal: {
+          ...state.terminal,
+          input: '',
+          draftInput: '',
+          historyCursor: null,
+        },
+      },
+      steps: createCommandSteps(lines),
+      delayMs,
+      onStep: (nextState) => {
+        dispatch({ type: GitActionType.ApplyExecutionFrame, payload: nextState })
+      },
+      onStart: options?.onStart,
+      onFinish: options?.onFinish,
+      onError: options?.onError,
+    })
   }
 }
 

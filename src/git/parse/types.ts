@@ -5,6 +5,7 @@ export type ParsedCommand =
   | { kind: 'switch'; name: string }
   | { kind: 'switchCreate'; name: string }
   | { kind: 'merge'; name: string }
+  | { kind: 'mergeAbort' }
   | { kind: 'revert'; commitId: string }
   | { kind: 'resetHard'; commitId: string }
   | { kind: 'checkout'; refType: 'branch'; name: string }

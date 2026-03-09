@@ -43,7 +43,7 @@ function AppDemoCatalogModal({
     <Modal
       opened={open}
       onClose={onClose}
-      title={<Title order={2} className="demo-modal-title">{strings.demo.title}</Title>}
+      title={<span className="demo-modal-title">{strings.demo.title}</span>}
       centered
       size="60rem"
       radius="24px"

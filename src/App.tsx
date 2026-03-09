@@ -9,13 +9,13 @@ import { ConflictResolver } from './components/ConflictResolver'
 import { Graph } from './components/Graph'
 import { Terminal } from './components/Terminal'
 import { initialState, GitActionType, reducer } from './git/reducer'
+import type { CommandSequenceStep } from './app/commandSequence'
+import { playCommandSequence } from './app/commandSequence'
 import { createHistoryDownHandler, createHistoryUpHandler } from './app/terminalHistoryHandlers'
 import { createResetHandler, createSubmitHandler } from './app/terminalSubmitHandlers'
-import { parseCommand } from './git/parse'
-import { executeCommand } from './git/execute'
 import AppTutorialModal from './components/AppTutorialModal'
 import { AppDemoCatalogModal } from './components/AppDemoCatalogModal'
-import type { GitState, TerminalEntry } from './git/types'
+import type { GitState } from './git/types'
 
 type DemoStep = { type: 'command'; line: string } | { type: 'editor'; text: string }
 
@@ -25,11 +25,6 @@ type DemoScenario = {
   description: string
   steps: DemoStep[]
 }
-
-const sleep = (ms: number) =>
-  new Promise((resolve) => {
-    setTimeout(resolve, ms)
-  })
 
 const baseDemoSteps: DemoStep[] = [
   { type: 'command', line: 'git init' },
@@ -285,69 +280,20 @@ export function App() {
     dispatch({ type: GitActionType.SetTerminalInput, payload: '' })
     dispatch({ type: GitActionType.SetTerminalDraftInput, payload: '' })
     dispatch({ type: GitActionType.Initialize, payload: cleanState })
-
-    let nextState: GitState = cleanState
-    const nextHistory: TerminalEntry[] = [...cleanState.terminal.history]
-    const now = Date.now()
+    const sequenceSteps: CommandSequenceStep[] = steps.map((step) =>
+      step.type === 'command'
+        ? { type: 'command', line: step.line }
+        : { type: 'editor', text: step.text, historyLine: strings.demo.autoEditorLine },
+    )
 
     try {
-      for (let index = 0; index < steps.length; index += 1) {
-        const step = steps[index]
-        if (step.type === 'editor') {
-          nextState = {
-            ...nextState,
-            editorText: step.text,
-          }
-
-          nextHistory.push({
-            id: String(now + index),
-            cmd: strings.demo.autoEditorLine,
-            out: strings.demo.autoEditorLine,
-            timestamp: now + index,
-          })
-
-          dispatch({
-            type: GitActionType.Initialize,
-            payload: {
-              ...nextState,
-              terminal: {
-                ...nextState.terminal,
-                history: [...nextHistory],
-              },
-            },
-          })
-        } else {
-          const ast = parseCommand(step.line)
-          const result = executeCommand(nextState, ast)
-          nextState = result.nextState
-
-          nextHistory.push({
-            id: String(now + index),
-            cmd: step.line,
-            out: result.out,
-            err: result.err,
-            timestamp: now + index,
-          })
-
-          dispatch({
-            type: GitActionType.Initialize,
-            payload: {
-              ...nextState,
-              terminal: {
-                ...nextState.terminal,
-                history: [...nextHistory],
-                historyCursor: null,
-                draftInput: '',
-                input: '',
-              },
-            },
-          })
-        }
-
-        if (index < steps.length - 1) {
-          await sleep(1000)
-        }
-      }
+      await playCommandSequence({
+        baseState: cleanState,
+        steps: sequenceSteps,
+        onStep: (nextState) => {
+          dispatch({ type: GitActionType.ApplyExecutionFrame, payload: nextState })
+        },
+      })
     } catch {
       setIsDemoRunning(false)
       return
@@ -473,9 +419,14 @@ export function App() {
               input={state.terminal.input}
               history={state.terminal.history}
               onInputChange={(value) => {
-                dispatch({ type: GitActionType.SetTerminalInput, payload: value })
-                dispatch({ type: GitActionType.SetTerminalHistoryCursor, payload: null })
-                dispatch({ type: GitActionType.SetTerminalDraftInput, payload: value })
+                dispatch({
+                  type: GitActionType.SetTerminalState,
+                  payload: {
+                    input: value,
+                    historyCursor: null,
+                    draftInput: value,
+                  },
+                })
               }}
               onSubmit={handleTerminalSubmit}
               onHistoryUp={handleTerminalHistoryUp}

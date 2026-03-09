@@ -2,8 +2,10 @@ import type { Commit, GitState, HeadRef, TerminalEntry } from '../types'
 
 export const GitActionType = {
   Initialize: 'INITIALIZE',
+  ApplyExecutionFrame: 'APPLY_EXECUTION_FRAME',
   SetHead: 'SET_HEAD',
   EditorSetText: 'EDITOR_SET_TEXT',
+  SetTerminalState: 'SET_TERMINAL_STATE',
   SetTerminalInput: 'SET_TERMINAL_INPUT',
   SetTerminalDraftInput: 'SET_TERMINAL_DRAFT_INPUT',
   SetTerminalHistoryCursor: 'SET_TERMINAL_HISTORY_CURSOR',
@@ -17,8 +19,10 @@ export const GitActionType = {
 
 export type GitAction =
   | { type: typeof GitActionType.Initialize; payload: GitState }
+  | { type: typeof GitActionType.ApplyExecutionFrame; payload: GitState }
   | { type: typeof GitActionType.SetHead; payload: HeadRef }
   | { type: typeof GitActionType.EditorSetText; payload: string }
+  | { type: typeof GitActionType.SetTerminalState; payload: Partial<GitState['terminal']> }
   | { type: typeof GitActionType.SetTerminalInput; payload: string }
   | { type: typeof GitActionType.SetTerminalDraftInput; payload: string }
   | { type: typeof GitActionType.SetTerminalHistoryCursor; payload: number | null }
