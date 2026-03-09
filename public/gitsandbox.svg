@@ -1,0 +1,47 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="10" y1="6" x2="56" y2="60" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F8FDFF"/>
+      <stop offset="1" stop-color="#D8EEF7"/>
+    </linearGradient>
+    <linearGradient id="branch" x1="18" y1="14" x2="44" y2="46" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0891B2"/>
+      <stop offset="1" stop-color="#1D4ED8"/>
+    </linearGradient>
+    <filter id="shadow" x="4" y="4" width="56" height="56" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#0F172A" flood-opacity="0.18"/>
+    </filter>
+  </defs>
+
+  <g filter="url(#shadow)">
+    <rect x="8" y="8" width="48" height="48" rx="14" fill="url(#bg)"/>
+    <rect x="8.75" y="8.75" width="46.5" height="46.5" rx="13.25" stroke="#A5C4DC" stroke-opacity="0.7" stroke-width="1.5"/>
+  </g>
+
+  <path
+    d="M22 18V39C22 42.3137 24.6863 45 28 45H42"
+    stroke="url(#branch)"
+    stroke-width="4.5"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+  <path
+    d="M22 30H34C37.3137 30 40 27.3137 40 24V18"
+    stroke="url(#branch)"
+    stroke-width="4.5"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+
+  <circle cx="22" cy="18" r="5.5" fill="#0F2942"/>
+  <circle cx="22" cy="18" r="3" fill="#E6FBFF"/>
+
+  <circle cx="40" cy="18" r="5.5" fill="#0891B2"/>
+  <circle cx="40" cy="18" r="3" fill="#E6FBFF"/>
+
+  <circle cx="22" cy="45" r="5.5" fill="#1D4ED8"/>
+  <circle cx="22" cy="45" r="3" fill="#E6FBFF"/>
+
+  <circle cx="42" cy="45" r="5.5" fill="#0F2942"/>
+  <circle cx="42" cy="45" r="3" fill="#E6FBFF"/>
+</svg>
