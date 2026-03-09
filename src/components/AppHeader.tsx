@@ -1,3 +1,4 @@
+import { ActionIcon, Button, Group, Paper, Title } from '@mantine/core'
 import type { LocaleStrings } from '../i18n/strings'
 
 type AppHeaderProps = {
@@ -18,39 +19,51 @@ export function AppHeader({
   onToggleLocale,
 }: AppHeaderProps) {
   return (
-    <header className="app-header">
-      <div className="app-header-title">{strings.header.title}</div>
-      <div className="app-header-actions">
-        <button
-          type="button"
-          className="app-help-button"
-          onClick={onOpenTutorial}
-          aria-label={strings.header.helpAria}
-        >
-          ?
-        </button>
+    <Paper component="header" className="app-header" radius="28px" shadow="sm" withBorder>
+      <Group justify="space-between" align="center" gap="md" wrap="wrap">
+        <div>
+          <Title order={1} className="app-header-title">
+            {strings.header.title}
+          </Title>
+        </div>
+        <Group className="app-header-actions" gap="xs" wrap="wrap">
+          <ActionIcon
+            variant="default"
+            color="gray"
+            radius="xl"
+            size="lg"
+            onClick={onOpenTutorial}
+            aria-label={strings.header.helpAria}
+          >
+            ?
+          </ActionIcon>
 
-        <button
-          type="button"
-          className="app-demo-catalog-button"
-          onClick={onOpenDemoCatalog}
-          disabled={isDemoRunning}
-        >
-          {isDemoRunning ? strings.header.demoRunning : strings.header.demoCatalog}
-        </button>
+          <Button
+            variant="light"
+            color="cyan"
+            size="md"
+            className="app-demo-catalog-button"
+            onClick={onOpenDemoCatalog}
+            loading={isDemoRunning}
+          >
+            {isDemoRunning ? strings.header.demoRunning : strings.header.demoCatalog}
+          </Button>
 
-        <button
-          type="button"
-          className="app-locale-button"
-          onClick={onToggleLocale}
-          aria-label={strings.locale.switchLabel}
-        >
-          {strings.locale.switchLabel}
-        </button>
-        <button type="button" className="app-reset-button" onClick={onReset}>
-          {strings.header.reset}
-        </button>
-      </div>
-    </header>
+          <Button
+            variant="default"
+            color="gray"
+            size="md"
+            className="app-locale-button"
+            onClick={onToggleLocale}
+            aria-label={strings.locale.switchLabel}
+          >
+            {strings.locale.switchLabel}
+          </Button>
+          <Button color="blue" size="md" className="app-reset-button" onClick={onReset}>
+            {strings.header.reset}
+          </Button>
+        </Group>
+      </Group>
+    </Paper>
   )
 }

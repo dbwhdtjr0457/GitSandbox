@@ -1,4 +1,4 @@
-﻿import { type MouseEvent } from 'react'
+import { Button, Code, Group, Modal, Paper, Stack, Text, Title } from '@mantine/core'
 import type { LocaleStrings } from '../i18n/strings'
 
 type DemoStep = { type: 'command'; line: string } | { type: 'editor'; text: string }
@@ -27,18 +27,6 @@ function AppDemoCatalogModal({
   isDemoRunning,
   strings,
 }: AppDemoCatalogModalProps) {
-  if (!open) {
-    return null
-  }
-
-  const onBackdropClick = () => {
-    onClose()
-  }
-
-  const onPanelClick = (event: MouseEvent<HTMLElement>) => {
-    event.stopPropagation()
-  }
-
   const commandPreview = (steps: DemoStep[]) => {
     const lines = steps
       .map((item) => (item.type === 'command' ? item.line : strings.demo.autoEditorLine))
@@ -52,44 +40,56 @@ function AppDemoCatalogModal({
   }
 
   return (
-    <div className="demo-catalog-backdrop" onClick={onBackdropClick}>
-      <section className="demo-catalog-modal" onClick={onPanelClick}>
-        <header className="demo-catalog-header">
-          <h2>{strings.demo.title}</h2>
-          <button
-            type="button"
-            className="tutorial-close"
-            onClick={onClose}
-            aria-label={strings.demo.closeAria}
-          >
-            ×
-          </button>
-        </header>
-        <div className="demo-catalog-body">
-          <p className="demo-catalog-note">{strings.demo.note}</p>
+    <Modal
+      opened={open}
+      onClose={onClose}
+      title={<Title order={2} className="demo-modal-title">{strings.demo.title}</Title>}
+      centered
+      size="60rem"
+      radius="24px"
+      overlayProps={{ backgroundOpacity: 0.6, blur: 6 }}
+      closeButtonProps={{ 'aria-label': strings.demo.closeAria }}
+      classNames={{
+        content: 'demo-modal-content',
+        header: 'demo-modal-header',
+        body: 'demo-modal-body',
+        title: 'demo-modal-title-slot',
+        close: 'demo-modal-close',
+      }}
+    >
+      <Stack gap="md">
+        <Text className="demo-catalog-note">{strings.demo.note}</Text>
 
-          <div className="demo-catalog-list">
-            {demos.map((scenario) => (
-              <article className="demo-catalog-item" key={scenario.id}>
+        <div className="demo-catalog-list">
+          {demos.map((scenario) => (
+            <Paper className="demo-catalog-item" key={scenario.id} radius="xl" p="md" withBorder>
+              <Group justify="space-between" align="flex-start" gap="md" wrap="wrap">
                 <div className="demo-catalog-content">
-                  <h3>{scenario.title}</h3>
-                  <p>{scenario.description}</p>
-                  <pre>{commandPreview(scenario.steps)}</pre>
+                  <Stack gap={6}>
+                    <Title order={3}>{scenario.title}</Title>
+                    <Text size="sm" c="dimmed">
+                      {scenario.description}
+                    </Text>
+                  </Stack>
+                  <Code block className="demo-catalog-preview">
+                    {commandPreview(scenario.steps)}
+                  </Code>
                 </div>
-                <button
-                  type="button"
+                <Button
                   className="app-demo-button"
+                  color="cyan"
+                  variant="light"
                   onClick={() => onRun(scenario.id)}
                   disabled={isDemoRunning}
                 >
                   {strings.demo.runLabel}
-                </button>
-              </article>
-            ))}
-          </div>
+                </Button>
+              </Group>
+            </Paper>
+          ))}
         </div>
-      </section>
-    </div>
+      </Stack>
+    </Modal>
   )
 }
 

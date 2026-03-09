@@ -1,4 +1,5 @@
 import { useReducer, useState } from 'react'
+import { Paper } from '@mantine/core'
 import './App.css'
 import type { Locale } from './i18n/strings'
 import { getLocaleStrings, getSavedLocale, saveLocale } from './i18n/strings'
@@ -440,17 +441,17 @@ export function App() {
       />
 
       <div className="layout">
-        <section className="panel graph-panel">
+        <Paper component="section" className="panel graph-panel" radius="24px" shadow="md" withBorder>
           <Graph
             commits={state.commits}
             branches={state.branches}
             head={state.head}
             lanes={state.meta.lanes}
           />
-        </section>
+        </Paper>
 
-        <section className="panel right-panel">
-          <div className="sub-panel editor-panel">
+        <section className="right-panel">
+          <Paper className="sub-panel editor-panel" radius="24px" shadow="sm" withBorder>
             {mergeConflict?.inProgress ? (
               <ConflictResolver
                 oursText={mergeConflict.oursText}
@@ -472,8 +473,8 @@ export function App() {
                 }
               />
             )}
-          </div>
-          <div className="sub-panel">
+          </Paper>
+          <Paper className="sub-panel" radius="24px" shadow="sm" withBorder>
             <Terminal
               input={state.terminal.input}
               history={state.terminal.history}
@@ -486,7 +487,7 @@ export function App() {
               onHistoryUp={handleTerminalHistoryUp}
               onHistoryDown={handleTerminalHistoryDown}
             />
-          </div>
+          </Paper>
         </section>
       </div>
     </div>

@@ -1,5 +1,5 @@
-﻿import type { LocaleStrings } from '../i18n/strings'
-import { useEffect, type MouseEvent } from 'react'
+import { List, Modal, Paper, Stack, Text, Title } from '@mantine/core'
+import type { LocaleStrings } from '../i18n/strings'
 
 type AppTutorialModalProps = {
   open: boolean
@@ -8,81 +8,64 @@ type AppTutorialModalProps = {
 }
 
 function AppTutorialModalComponent({ open, onClose, strings }: AppTutorialModalProps) {
-  if (!open) {
-    return null
-  }
-
-  const onBackdropClick = () => {
-    onClose()
-  }
-
-  const onPanelClick = (event: MouseEvent<HTMLElement>) => {
-    event.stopPropagation()
-  }
-
-  useEffect(() => {
-    const onKeyDown = (event: globalThis.KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        onClose()
-      }
-    }
-
-    if (open) {
-      window.addEventListener('keydown', onKeyDown)
-    }
-
-    return () => {
-      window.removeEventListener('keydown', onKeyDown)
-    }
-  }, [open, onClose])
-
   return (
-    <div className="tutorial-backdrop" onClick={onBackdropClick}>
-      <section className="tutorial-modal" onClick={onPanelClick}>
-        <header className="tutorial-header">
-          <h2>{strings.tutorial.title}</h2>
-          <button
-            type="button"
-            className="tutorial-close"
-            onClick={onClose}
-            aria-label={strings.tutorial.closeAria}
-          >
-            ×
-          </button>
-        </header>
-        <div className="tutorial-body">
-          <section className="tutorial-section">
-            <h3>{strings.tutorial.quickTipsTitle}</h3>
-            <ul>
+    <Modal
+      opened={open}
+      onClose={onClose}
+      title={strings.tutorial.title}
+      centered
+      size="xl"
+      radius="24px"
+      overlayProps={{ backgroundOpacity: 0.6, blur: 6 }}
+      closeButtonProps={{ 'aria-label': strings.tutorial.closeAria }}
+      classNames={{
+        content: 'app-modal-content',
+        header: 'app-modal-header',
+        body: 'app-modal-body',
+      }}
+    >
+      <Stack gap="md">
+        <Paper className="tutorial-section-card" radius="xl" p="md" withBorder>
+          <Stack gap="xs">
+            <Title order={3}>{strings.tutorial.quickTipsTitle}</Title>
+            <List spacing="xs">
               {strings.tutorial.quickTips.map((line) => (
-                <li key={line}>{line}</li>
+                <List.Item key={line}>{line}</List.Item>
               ))}
-            </ul>
-          </section>
+            </List>
+          </Stack>
+        </Paper>
 
-          <section className="tutorial-section">
-            <h3>{strings.tutorial.availableTitle}</h3>
-            <ul>
+        <Paper className="tutorial-section-card" radius="xl" p="md" withBorder>
+          <Stack gap="xs">
+            <Title order={3}>{strings.tutorial.availableTitle}</Title>
+            <List spacing="xs">
               {strings.tutorial.availableLines.map((line) => (
-                <li key={line}>{line}</li>
+                <List.Item key={line}>{line}</List.Item>
               ))}
-            </ul>
-          </section>
+            </List>
+          </Stack>
+        </Paper>
 
-          <section className="tutorial-section">
-            <h3>{strings.tutorial.workflowTitle}</h3>
-            <ul>
+        <Paper className="tutorial-section-card" radius="xl" p="md" withBorder>
+          <Stack gap="xs">
+            <Title order={3}>{strings.tutorial.workflowTitle}</Title>
+            <List spacing="xs">
               {strings.tutorial.workflowLines.map((line) => (
-                <li key={line}>{line}</li>
+                <List.Item key={line}>{line}</List.Item>
               ))}
-            </ul>
-          </section>
+            </List>
+          </Stack>
+        </Paper>
 
-          <p className="tutorial-tip">{strings.tutorial.closeHint}</p>
-          <p className="tutorial-tip">{strings.tutorial.demoHint}</p>
-        </div>
-      </section>
-    </div>
+        <Text size="sm" c="dimmed">
+          {strings.tutorial.closeHint}
+        </Text>
+        <Text size="sm" c="dimmed">
+          {strings.tutorial.demoHint}
+        </Text>
+      </Stack>
+    </Modal>
   )
 }
 

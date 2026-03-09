@@ -5,13 +5,23 @@
 .right-panel {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
+  flex: 1 1 50%;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .sub-panel {
   flex: 1;
-  border: 1px solid #e5e5e5;
   min-height: 0;
-  padding: 11px;
-  background: #fff;
+  display: flex;
+  flex-direction: column;
+  padding: 14px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(245, 249, 255, 0.96)),
+    linear-gradient(135deg, rgba(99, 102, 241, 0.06), transparent 58%);
+  border: 1px solid rgba(143, 175, 201, 0.38);
+  box-shadow: 0 14px 36px rgba(15, 23, 42, 0.08);
+  overflow: hidden;
 }
