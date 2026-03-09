@@ -3,7 +3,12 @@ import type { ExecutionResult } from './executeUtils'
 import type { ParsedCommand } from '../../parse/types'
 import { getSnapshotByCommitId } from './executeUtils'
 import { messages } from '../../messages'
-import { requireBranchExists, requireCommitExists, requireInitialized } from '../../guards'
+import {
+  requireBranchExists,
+  requireCommitExists,
+  requireInitialized,
+  requireNoMergeInProgress,
+} from '../../guards'
 
 export function executeCheckout(
   state: GitState,
@@ -12,6 +17,11 @@ export function executeCheckout(
   const initError = requireInitialized(state)
   if (initError) {
     return initError
+  }
+
+  const mergeError = requireNoMergeInProgress(state)
+  if (mergeError) {
+    return mergeError
   }
 
   if (cmd.refType === 'branch') {

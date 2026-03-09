@@ -49,3 +49,18 @@ export function requireSymbolicHead(state: GitState): ExecutionResult | null {
     err: messages.error.detachedHeadNotSupported(),
   }
 }
+
+export function requireNoMergeInProgress(
+  state: GitState,
+  errMessage = messages.error.resolveCurrentIndexFirst(),
+): ExecutionResult | null {
+  if (!state.meta.mergeConflict) {
+    return null
+  }
+
+  return {
+    nextState: state,
+    out: '',
+    err: errMessage,
+  }
+}

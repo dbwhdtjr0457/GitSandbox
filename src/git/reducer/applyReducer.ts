@@ -41,23 +41,6 @@ export function reducer(state: GitState, action: GitAction): GitState {
           mergeConflict: action.payload,
         },
       }
-    case GitActionType.SetCommitSnapshot: {
-      const currentCommit = state.commits[action.payload.commitId]
-      if (!currentCommit) {
-        return state
-      }
-
-      return {
-        ...state,
-        commits: {
-          ...state.commits,
-          [action.payload.commitId]: {
-            ...currentCommit,
-            snapshot: action.payload.snapshot,
-          },
-        },
-      }
-    }
     default:
       return state
   }

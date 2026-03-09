@@ -10,6 +10,27 @@ export function executeStatus(state: GitState): ExecutionResult {
     return initError
   }
 
+  const mergeConflict = state.meta.mergeConflict
+  if (mergeConflict) {
+    const mergeLine = mergeConflict.resolved
+      ? `${messages.output.statusAllConflictsFixed()}\n${messages.output.statusCommitMergeHint()}`
+      : `${messages.output.statusUnmergedPaths()}\n${messages.output.statusResolveConflictHint()}`
+
+    if (state.head.type === 'symbolic') {
+      const commitText = state.head.commitId ?? 'no commits yet'
+      return {
+        nextState: state,
+        out: `${messages.output.statusOnBranch(state.head.branch, commitText)}\n${mergeLine}`,
+      }
+    }
+
+    const detachedAt = state.head.commitId ?? 'no commits yet'
+    return {
+      nextState: state,
+      out: `${messages.output.statusHeadDetached(detachedAt)}\n${mergeLine}`,
+    }
+  }
+
   const headSnapshot = getSnapshotByCommitId(state.head.commitId, state.commits)
   const statusLine =
     state.editorText === headSnapshot

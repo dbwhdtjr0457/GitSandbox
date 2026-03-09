@@ -2,17 +2,22 @@ import type { GitState } from '../../types'
 import type { ExecutionResult } from './executeUtils'
 import { getSnapshotByCommitId, hasOwn } from './executeUtils'
 import { messages } from '../../messages'
-import { requireInitialized } from '../../guards'
+import { requireInitialized, requireNoMergeInProgress } from '../../guards'
 
 export function executeBranch(
   state: GitState,
   branchName: string,
   shouldSwitch: boolean,
 ): ExecutionResult {
+  const initError = requireInitialized(state)
+  if (initError) {
+    return initError
+  }
+
   if (shouldSwitch) {
-    const initError = requireInitialized(state)
-    if (initError) {
-      return initError
+    const mergeError = requireNoMergeInProgress(state)
+    if (mergeError) {
+      return mergeError
     }
   }
 

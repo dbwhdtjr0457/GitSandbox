@@ -10,13 +10,28 @@ export function executeCommit(state: GitState, message: string): ExecutionResult
     return initError
   }
 
+  const mergeConflict = state.meta.mergeConflict
+  if (mergeConflict && !mergeConflict.resolved) {
+    return {
+      nextState: state,
+      out: '',
+      err: messages.error.commitNotPossibleBecauseUnmerged(),
+    }
+  }
+
   const commitId = createCommitId(state)
   const commitLane = state.head.type === 'symbolic' ? getLaneByName(state, state.head.branch) : 0
 
   const commit: Commit = {
     id: commitId,
-    message,
-    parents: state.head.commitId ? [state.head.commitId] : [],
+    message: mergeConflict ? message || mergeConflict.branchMergeMessage : message,
+    parents: mergeConflict
+      ? [mergeConflict.oursCommitId, mergeConflict.theirsCommitId].filter(
+          (id): id is string => id !== null,
+        )
+      : state.head.commitId
+        ? [state.head.commitId]
+        : [],
     branch: state.head.type === 'symbolic' ? state.head.branch : null,
     lane: commitLane,
     snapshot: state.editorText,
@@ -54,6 +69,7 @@ export function executeCommit(state: GitState, message: string): ExecutionResult
       meta: {
         ...state.meta,
         nextId: state.meta.nextId + 1,
+        mergeConflict: null,
       },
     },
     out: messages.output.createdCommit(commitId),

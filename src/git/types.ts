@@ -50,7 +50,7 @@ export type GitState = {
 
 export type MergeConflictState = {
   inProgress: boolean
-  pendingMergeCommitId: string
+  resolved: boolean
   oursBranch: string
   theirsBranch: string
   oursCommitId: string | null

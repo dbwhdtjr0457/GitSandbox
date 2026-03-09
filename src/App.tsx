@@ -378,10 +378,9 @@ export function App() {
 
     dispatch({ type: GitActionType.EditorSetText, payload: mergeConflict.oursText })
     dispatch({
-      type: GitActionType.SetCommitSnapshot,
-      payload: { commitId: mergeConflict.pendingMergeCommitId, snapshot: mergeConflict.oursText },
+      type: GitActionType.SetMergeConflict,
+      payload: { ...mergeConflict, resolved: true },
     })
-    dispatch({ type: GitActionType.SetMergeConflict, payload: null })
   }
 
   const handleAcceptTheirs = () => {
@@ -391,10 +390,9 @@ export function App() {
 
     dispatch({ type: GitActionType.EditorSetText, payload: mergeConflict.theirsText })
     dispatch({
-      type: GitActionType.SetCommitSnapshot,
-      payload: { commitId: mergeConflict.pendingMergeCommitId, snapshot: mergeConflict.theirsText },
+      type: GitActionType.SetMergeConflict,
+      payload: { ...mergeConflict, resolved: true },
     })
-    dispatch({ type: GitActionType.SetMergeConflict, payload: null })
   }
 
   const handleKeepResult = () => {
@@ -403,13 +401,9 @@ export function App() {
     }
 
     dispatch({
-      type: GitActionType.SetCommitSnapshot,
-      payload: {
-        commitId: mergeConflict.pendingMergeCommitId,
-        snapshot: state.editorText,
-      },
+      type: GitActionType.SetMergeConflict,
+      payload: { ...mergeConflict, resolved: true },
     })
-    dispatch({ type: GitActionType.SetMergeConflict, payload: null })
   }
 
   const handleResultChange = (value: string) => {
@@ -452,7 +446,7 @@ export function App() {
 
         <section className="right-panel">
           <Paper className="sub-panel editor-panel" radius="24px" shadow="sm" withBorder>
-            {mergeConflict?.inProgress ? (
+            {mergeConflict?.inProgress && !mergeConflict.resolved ? (
               <ConflictResolver
                 oursText={mergeConflict.oursText}
                 theirsText={mergeConflict.theirsText}

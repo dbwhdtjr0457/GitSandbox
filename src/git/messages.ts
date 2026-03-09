@@ -11,6 +11,11 @@ export const messages = {
     detachedHeadNotSupported: () =>
       'fatal: cannot merge while HEAD is detached (MVP not supported)',
     commitRequiredForMerge: (name: string) => `fatal: invalid refspec '${name}'`,
+    resolveCurrentIndexFirst: () => 'error: you need to resolve your current index first',
+    mergeNotPossibleBecauseUnmerged: () =>
+      'error: Merging is not possible because you have unmerged files.',
+    commitNotPossibleBecauseUnmerged: () =>
+      'error: Committing is not possible because you have unmerged files.',
     unhandledCommand: () => 'Unhandled command.',
   },
   output: {
@@ -31,6 +36,10 @@ export const messages = {
     statusHeadDetached: (id: string) => `HEAD detached at ${id}`,
     statusNoChanges: () => 'nothing to commit (working tree changes not simulated yet)',
     statusDirty: () => 'Changes not staged for commit',
+    statusUnmergedPaths: () => 'You have unmerged paths.',
+    statusAllConflictsFixed: () => 'All conflicts fixed but you are still merging.',
+    statusResolveConflictHint: () => '  (fix conflicts in the editor and then run "git commit")',
+    statusCommitMergeHint: () => '  (use "git commit" to conclude merge)',
     noCommitsYet: () => 'No commits yet',
   },
 }

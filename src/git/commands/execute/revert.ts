@@ -3,12 +3,17 @@ import type { ExecutionResult } from './executeUtils'
 import { createCommitId, getLaneByName } from './executeUtils'
 import { messages } from '../../messages'
 import { describeCommitForRevert } from '../../messages'
-import { requireCommitExists, requireInitialized } from '../../guards'
+import { requireCommitExists, requireInitialized, requireNoMergeInProgress } from '../../guards'
 
 export function executeRevert(state: GitState, commitId: string): ExecutionResult {
   const initError = requireInitialized(state)
   if (initError) {
     return initError
+  }
+
+  const mergeError = requireNoMergeInProgress(state)
+  if (mergeError) {
+    return mergeError
   }
 
   const commitError = requireCommitExists(state, commitId)

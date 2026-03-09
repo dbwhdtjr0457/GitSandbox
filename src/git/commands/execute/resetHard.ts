@@ -30,6 +30,10 @@ export function executeResetHard(state: GitState, commitId: string): ExecutionRe
           [state.head.branch]: commitId,
         },
         editorText: nextEditorText,
+        meta: {
+          ...state.meta,
+          mergeConflict: null,
+        },
       },
       out: messages.output.headNowAt(commitId),
     }
@@ -43,6 +47,10 @@ export function executeResetHard(state: GitState, commitId: string): ExecutionRe
         commitId,
       },
       editorText: nextEditorText,
+      meta: {
+        ...state.meta,
+        mergeConflict: null,
+      },
     },
     out: messages.output.headNowAt(commitId),
   }

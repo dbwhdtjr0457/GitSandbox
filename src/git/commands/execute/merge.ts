@@ -3,12 +3,31 @@ import type { Commit, GitState } from '../../types'
 import type { ExecutionResult } from './executeUtils'
 import { createCommitId, getLaneByName, getSnapshotByCommitId } from './executeUtils'
 import { messages } from '../../messages'
-import { requireBranchExists, requireInitialized, requireSymbolicHead } from '../../guards'
+import {
+  requireBranchExists,
+  requireInitialized,
+  requireNoMergeInProgress,
+  requireSymbolicHead,
+} from '../../guards'
+
+function createConflictText(
+  oursBranch: string,
+  theirsBranch: string,
+  oursText: string,
+  theirsText: string,
+): string {
+  return `<<<<<<< ${oursBranch}\n${oursText}\n=======\n${theirsText}\n>>>>>>> ${theirsBranch}`
+}
 
 export function executeMerge(state: GitState, branchName: string): ExecutionResult {
   const initError = requireInitialized(state)
   if (initError) {
     return initError
+  }
+
+  const mergeError = requireNoMergeInProgress(state, messages.error.mergeNotPossibleBecauseUnmerged())
+  if (mergeError) {
+    return mergeError
   }
 
   const headRef = state.head
@@ -23,6 +42,7 @@ export function executeMerge(state: GitState, branchName: string): ExecutionResu
       err: messages.error.detachedHeadNotSupported(),
     }
   }
+
   const symbolicHead = headRef
   const branchError = requireBranchExists(state, branchName)
   if (branchError) {
@@ -88,8 +108,31 @@ export function executeMerge(state: GitState, branchName: string): ExecutionResu
   const theirsText = getSnapshotByCommitId(targetCommitId, state.commits)
   const hasConflict = oursText !== theirsText
 
+  if (hasConflict) {
+    return {
+      nextState: {
+        ...state,
+        editorText: createConflictText(symbolicHead.branch, branchName, oursText, theirsText),
+        meta: {
+          ...state.meta,
+          mergeConflict: {
+            inProgress: true,
+            resolved: false,
+            oursBranch: symbolicHead.branch,
+            theirsBranch: branchName,
+            oursCommitId: currentCommitId,
+            theirsCommitId: targetCommitId,
+            oursText,
+            theirsText,
+            branchMergeMessage: `Merge branch '${branchName}'`,
+          },
+        },
+      },
+      out: messages.output.mergeConflictDetected(),
+    }
+  }
+
   const mergeCommitId = createCommitId(state)
-  // conflict 미구현 환경에서는 현재 결과를 editorText로 임시 반영해 merge commit snapshot을 구성한다.
   const mergeCommit: Commit = {
     id: mergeCommitId,
     message: `Merge branch '${branchName}'`,
@@ -119,21 +162,9 @@ export function executeMerge(state: GitState, branchName: string): ExecutionResu
       meta: {
         ...state.meta,
         nextId: state.meta.nextId + 1,
-        mergeConflict: hasConflict
-          ? {
-              inProgress: true,
-              pendingMergeCommitId: mergeCommitId,
-              oursBranch: symbolicHead.branch,
-              theirsBranch: branchName,
-              oursCommitId: currentCommitId,
-              theirsCommitId: targetCommitId,
-              oursText,
-              theirsText,
-              branchMergeMessage: `Merge branch '${branchName}'`,
-            }
-          : null,
+        mergeConflict: null,
       },
     },
-    out: hasConflict ? messages.output.mergeConflictDetected() : messages.output.mergeMadeByOrt(),
+    out: messages.output.mergeMadeByOrt(),
   }
 }
