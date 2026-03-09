@@ -1,0 +1,76 @@
+{
+  "generatedAt": "2026-03-09",
+  "scenarios": [
+    {
+      "id": "single-commit",
+      "title": "Single commit",
+      "card": "5) single commit",
+      "screenshot": "output/playwright/single-commit.png",
+      "terminal": "Welcome to Git Sandbox TerminalType  help to list available commands.$ git$ git initInitialized empty Git sandbox repository.$ git commit -m \"init\"Created commit c1",
+      "graphText": "Graphmainc1\ninit\nParents: nonec1initbranch: mainHEAD",
+      "branchLabels": [
+        "branch: main"
+      ]
+    },
+    {
+      "id": "branch-create",
+      "title": "Branch create",
+      "card": "7) branch create",
+      "screenshot": "output/playwright/branch-create.png",
+      "terminal": "Welcome to Git Sandbox TerminalType  help to list available commands.$ git$ git initInitialized empty Git sandbox repository.$ git commit -m \"init\"Created commit c1$ git branch featCreated branch feat$ git statusOn branch main + HEAD -> main (c1)\nnothing to commit (working tree changes not simulated yet)",
+      "graphText": "Graphmainfeatc1\ninit\nParents: nonec1initbranch: mainbranch: featHEAD",
+      "branchLabels": [
+        "branch: main",
+        "branch: feat"
+      ]
+    },
+    {
+      "id": "switch-create-branch",
+      "title": "Switch -c",
+      "card": "9) switch -c",
+      "screenshot": "output/playwright/switch-create-branch.png",
+      "terminal": "Welcome to Git Sandbox TerminalType  help to list available commands.$ git$ git initInitialized empty Git sandbox repository.$ git commit -m \"init\"Created commit c1$ git switch -c featCreated and switched to new branch 'feat'$ git commit -m \"feat: init feature branch\"Created commit c2",
+      "graphText": "Graphmainfeatc2\nfeat: init feature branch\nParents: c1c2feat: init feature branchc1\ninit\nParents: nonec1initbranch: mainbranch: featHEAD",
+      "branchLabels": [
+        "branch: main",
+        "branch: feat"
+      ]
+    },
+    {
+      "id": "fast-forward-merge",
+      "title": "Fast-forward merge",
+      "card": "13) fast-forward merge",
+      "screenshot": "output/playwright/fast-forward-merge.png",
+      "terminal": "Welcome to Git Sandbox TerminalType  help to list available commands.$ git$ git initInitialized empty Git sandbox repository.$ git commit -m \"init\"Created commit c1$ git branch featCreated branch feat$ git switch featSwitched to branch 'feat'$ git commit -m \"feat: add docs\"Created commit c2$ git switch mainSwitched to branch 'main'$ git merge featFast-forward$ git log --onelinec2 feat: add docs\nc1 init",
+      "graphText": "Graphmainfeatc2\nfeat: add docs\nParents: c1c2feat: add docsc1\ninit\nParents: nonec1initbranch: mainbranch: featHEAD",
+      "branchLabels": [
+        "branch: main",
+        "branch: feat"
+      ]
+    },
+    {
+      "id": "merge-conflict",
+      "title": "Merge conflict",
+      "card": "19) combined: merge conflict",
+      "screenshot": "output/playwright/merge-conflict.png",
+      "terminal": "Welcome to Git Sandbox TerminalType  help to list available commands.$ git$ git initInitialized empty Git sandbox repository.$ git commit -m \"init baseline\"Created commit c1$ git switch -c featCreated and switched to new branch 'feat'$ (데모) 편집기 자동 입력(데모) 편집기 자동 입력$ git commit -m \"feat: add toolbar\"Created commit c2$ git switch mainSwitched to branch 'main'$ (데모) 편집기 자동 입력(데모) 편집기 자동 입력$ git commit -m \"main: add metrics\"Created commit c3$ git merge featAuto-merging... CONFLICT (content)$ git statusOn branch main + HEAD -> main (c3)\nYou have unmerged paths.\n  (fix conflicts in the editor and then run \"git commit\")$ git log --onelinec3 main: add metrics\nc1 init baseline",
+      "graphText": "Graphmainfeatc3\nmain: add metrics\nParents: c1c3main: add metricsc2\nfeat: add toolbar\nParents: c1c2feat: add toolbarc1\ninit baseline\nParents: nonec1init baselinebranch: mainbranch: featHEAD",
+      "branchLabels": [
+        "branch: main",
+        "branch: feat"
+      ],
+      "conflictHeaders": [
+        "OURS (OURS (main))",
+        "THEIRS (THEIRS (feat))",
+        "RESULT"
+      ],
+      "conflictButtons": [
+        "OURS 적용",
+        "THEIRS 적용",
+        "RESULT 유지",
+        "OURS↔RESULT 비교",
+        "THEIRS↔RESULT 비교"
+      ]
+    }
+  ]
+}
